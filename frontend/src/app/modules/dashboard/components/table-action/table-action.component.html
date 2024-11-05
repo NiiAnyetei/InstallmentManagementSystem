@@ -1,0 +1,124 @@
+<div class="flex flex-wrap items-center justify-between gap-2 py-3 px-5">
+  <h3 class="text-sm font-medium text-muted-foreground">Showing 08 of 100 users</h3>
+  <div class="flex flex-wrap gap-2">
+    <div class="flex">
+      <label class="relative text-muted-foreground">
+        <div class="absolute left-2.5 top-2.5">
+          <svg-icon src="./assets/icons/heroicons/outline/magnifying-glass.svg" [svgClass]="'h-4 w-4'"> </svg-icon>
+        </div>
+        <input class="py-2 pl-8 pr-2" placeholder="Search name" type="text" value="" />
+      </label>
+    </div>
+
+    <div class="relative">
+      <div (click)="toggleMenu()" clickOutside (clickOutside)="isOpen = false"
+        class="inline-flex items-center overflow-hidden rounded-md border bg-background text-muted-foreground cursor-pointer hover:bg-card">
+        <a class="border-e-0 px-4 py-2 text-sm/none">
+          Filters
+        </a>
+
+        <div class="h-full p-2">
+          <span class="sr-only">Menu</span>
+          <svg-icon src="./assets/icons/dropdown.svg" [svgClass]="'h-4 w-4'"> </svg-icon>
+        </div>
+      </div>
+
+
+      <!-- <div [@openClose]="isOpen ? 'open' : 'closed'"
+        class="absolute end-0 z-10 mt-2 w-60 divide-gray-100 rounded-md border bg-background shadow-lg py-4 px-4 space-y-4"
+        role="menu">
+        <div class="w-full max-w-sm min-w-[200px]">
+          <label class="block mb-1 text-sm text-slate-700">
+            Member Name
+          </label>
+          <input type="text"
+            class="w-full h-10 bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-400 shadow-sm focus:shadow-md"
+            placeholder="Enter your text" />
+        </div>
+
+        <div class="w-full max-w-sm min-w-[200px]">
+          <label class="block mb-1 text-sm text-slate-700">
+            Member Name
+          </label>
+          <input type="text"
+            class="w-full h-10 bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-400 shadow-sm focus:shadow-md"
+            placeholder="Enter your text" />
+        </div>
+
+        <div class="flex justify-between space-x-4">
+          <button
+            class="flex-none rounded-md bg-muted px-4 py-2.5 text-xs font-semibold text-muted-foreground hover:text-foreground">
+            Reset
+          </button>
+          <button (click)="toggleMenu()"
+            class="flex-none rounded-md bg-primary px-4 py-2.5 text-xs font-semibold text-primary-foreground">
+            Filter
+          </button>
+        </div>
+
+        <div class="p-2">
+          <form method="POST" action="#">
+              <button type="submit"
+                class="flex w-full items-center gap-2 rounded-lg px-4 py-2 text-sm text-red-700 hover:bg-red-50"
+                role="menuitem">
+                <svg xmlns="http://www.w3.org/2000/svg" class="size-4" fill="none" viewBox="0 0 24 24"
+                  stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+  
+                Delete Product
+              </button>
+            </form>
+        </div>
+      </div> -->
+
+      <!-- Dropdown -->
+      <div [@openClose]="isOpen ? 'open' : 'closed'"
+        class="absolute right-0 z-20 mt-2 w-60 origin-top-right transform rounded-md bg-background shadow-custom ring-1 ring-transparent ring-opacity-5 transition focus:outline-none  py-4 px-4 space-y-4">
+        <div class="w-full max-w-sm min-w-[200px]">
+          <label class="block mb-1 text-sm text-slate-700">
+            Member Name
+          </label>
+          <input type="text"
+            class="w-full h-10 bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-400 shadow-sm focus:shadow-md"
+            placeholder="Enter your text" />
+        </div>
+
+        <div class="w-full max-w-sm min-w-[200px]">
+          <label class="block mb-1 text-sm text-slate-700">
+            Member Name
+          </label>
+          <input type="text"
+            class="w-full h-10 bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-400 shadow-sm focus:shadow-md"
+            placeholder="Enter your text" />
+        </div>
+
+        <div class="flex justify-between space-x-4">
+          <button
+            class="flex-none rounded-md bg-muted px-4 py-2.5 text-xs font-semibold text-muted-foreground hover:text-foreground">
+            Reset
+          </button>
+          <button (click)="toggleMenu()"
+            class="flex-none rounded-md bg-primary px-4 py-2.5 text-xs font-semibold text-primary-foreground">
+            Filter
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- <div class="flex flex-wrap gap-2.5">
+      <select class="w-28 p-2 text-muted-foreground">
+        <option value="1">Active</option>
+        <option value="2">Disabled</option>
+        <option value="2">Pending</option>
+      </select>
+      <select class="w-28 p-2 text-muted-foreground">
+        <option value="1">Latest</option>
+        <option value="2">Older</option>
+        <option value="3">Oldest</option>
+      </select>
+    </div> -->
+  </div>
+</div>

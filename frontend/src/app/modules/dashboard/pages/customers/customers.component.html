@@ -1,0 +1,101 @@
+<div class="mb-4 flex justify-between">
+    <div class="inline-block">
+        <h3 class="font-semibold text-foreground">Customers</h3>
+        <div class="space-x-1 text-xs font-medium text-muted-foreground">
+            <a href="" class="hover:text-primary">All Customers:</a>
+            <span class="text-foreground">49,053</span>
+        </div>
+    </div>
+    <div class="inline-block space-x-4">
+        <!-- <button
+        class="flex-none rounded-md bg-muted px-4 py-2.5 text-xs font-semibold text-muted-foreground hover:text-foreground">
+        Import CSV
+      </button> -->
+        <button (click)="openModal()"
+            class="flex-none rounded-md bg-primary px-4 py-2.5 text-xs font-semibold text-primary-foreground">
+            Add Customer
+        </button>
+    </div>
+</div>
+
+<div class="flex min-w-full flex-col rounded-xl border border-muted/20 bg-background p-2">
+    <app-table-action></app-table-action>
+
+    <div class="overflow-x-auto">
+        <table
+            class="table w-full table-auto border-collapse border-0 text-left align-middle leading-5 text-muted-foreground">
+            <thead class="border border-muted/20 text-xs text-muted-foreground">
+                <tr app-table-header (onCheck)="toggleUsers($event)"></tr>
+            </thead>
+            <tbody>
+                @for (user of users() | paginate: config; track $index) {
+                <tr class="hover:bg-card/50" app-table-row [user]="user"></tr>
+                } @empty {
+                <tr>
+                    <td class="py-4 text-center text-sm" colspan="7">No data</td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Footer -->
+    <div class="flex flex-wrap items-center justify-between gap-2 py-3 px-5 text-xs text-muted-foreground">
+        <div class="order-2 flex items-center gap-2 md:order-1">
+            Show
+            <select class="w-16 p-2">
+                <option value="5">5</option>
+                <option value="10" selected>10</option>
+                <option value="20">20</option>
+                <option value="30">30</option>
+                <option value="50">50</option>
+            </select>
+            per page
+        </div>
+        <div class="order-1 flex items-center gap-4 md:order-2">
+            <span>1-10 of 100</span>
+            <!-- <pagination-controls [id]="config.id!" [maxSize]="maxSize" [directionLinks]="directionLinks"
+                [autoHide]="autoHide" [responsive]="responsive" [previousLabel]="labels.previousLabel"
+                [nextLabel]="labels.nextLabel" [screenReaderPaginationLabel]="labels.screenReaderPaginationLabel"
+                [screenReaderPageLabel]="labels.screenReaderPageLabel"
+                [screenReaderCurrentLabel]="labels.screenReaderCurrentLabel" (pageChange)="onPageChange($event)"
+                (pageBoundsCorrection)="onPageBoundsCorrection($event)"></pagination-controls> -->
+
+            <pagination-template #p="paginationApi" [id]="config.id!" (pageChange)="onPageChange($event)">
+                <div class="inline-flex items-center gap-1">
+                    <button
+                        [disabled]="p.isFirstPage()"
+                        (click)="p.previous()"
+                        class="inline-flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-md text-sm hover:bg-muted-foreground/10 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <span class="sr-only">Prev Page</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="size-3" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd"
+                                d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
+                                clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                    <ng-container *ngFor="let page of p.pages">
+                        <button
+                            [disabled]="p.getCurrent() === page.value"
+                            [class.active-page]="p.getCurrent() === page.value"
+                            (click)="p.setCurrent(page.value)"
+                            class="inline-flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-md disabled:cursor-not-allowed active-page hover:bg-muted-foreground/10 text-sm">
+                            {{ page.label }}
+                        </button>
+                    </ng-container>
+                    <button
+                        [disabled]="p.isLastPage()"
+                        (click)="p.next()"
+                        class="inline-flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-md text-sm hover:bg-muted-foreground/10 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <span class="sr-only">Next Page</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="size-3" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd"
+                                d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                                clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                </div>
+            </pagination-template>
+        </div>
+    </div>
+</div>
