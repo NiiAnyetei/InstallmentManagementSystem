@@ -1,5 +1,7 @@
-import { CanActivateFn } from '@angular/router';
+import { inject } from '@angular/core';
+import { CanActivateFn, Router } from '@angular/router';
+import { AppStore } from 'src/app/app.store';
 
-export const authGuard: CanActivateFn = (route, state) => {
-  return true;
+export const AuthGuard: CanActivateFn = (route, state) => {
+  return inject(AppStore).$isAuthenticated() ? true : inject(Router).createUrlTree(['/auth/sign-in']);
 };

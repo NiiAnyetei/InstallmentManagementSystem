@@ -28,7 +28,8 @@
     "prettier": "prettier --config ./.prettierrc --write \"src/{app,environments}/**/*{.ts,.html,.scss,.json}\"",
     "prettier:verify": "prettier --config ./.prettierrc --check \"src/{app,environments}/**/*{.ts,.html,.scss,.json}\"",
     "prettier:staged": "pretty-quick --staged",
-    "lint": "ng lint"
+    "lint": "ng lint",
+    "update-models": "npx openapi-typescript https://vtcmd9j9-7009.uks1.devtunnels.ms/swagger/v1/swagger.json -o src/app/core/models/models.ts"
   },
   "private": true,
   "dependencies": {

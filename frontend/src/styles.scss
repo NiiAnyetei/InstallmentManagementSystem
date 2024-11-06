@@ -156,6 +156,10 @@
   .active-page{
     @apply bg-muted-foreground/10;
   }
+
+  .loading{
+    @apply pointer-events-none opacity-50;
+  }
 }
 
 /** Scroll bar **/

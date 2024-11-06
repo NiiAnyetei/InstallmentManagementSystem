@@ -12,7 +12,12 @@ import { Dialog, DialogModule } from '@angular/cdk/dialog';
 import { AddCustomerModalComponent } from '../../components/customers/modal/add-customer-modal/add-customer-modal.component';
 import { NgxPaginationModule, PaginationInstance } from 'ngx-pagination';
 import { CommonModule } from '@angular/common';
+import { CustomersService } from 'src/app/core/services/customers/customers.service';
+import { components, paths } from 'src/app/core/models/models';
+import { handleRequestError } from 'src/app/core/utils/custom-functions';
 
+type CustomersQuery = paths['/api/customers']['get']['parameters']['query']
+type CustomersDto = components['schemas']['CustomersDto'];
 
 @Component({
   selector: 'app-customers',
@@ -33,7 +38,10 @@ import { CommonModule } from '@angular/common';
 })
 export class CustomersComponent implements OnInit {
   dialog = inject(Dialog);
-  users = signal<User[]>([]);
+  customers = signal<CustomersDto>({
+    items: [],
+    count: 0
+  });
   public filter: string = '';
   public maxSize: number = 7;
   public directionLinks: boolean = true;
@@ -69,38 +77,28 @@ export class CustomersComponent implements OnInit {
     console.log(message);
   }
 
-  constructor(private http: HttpClient) {
-    this.http.get<User[]>('https://my.api.mockaroo.com/users.json?key=ac905d50').subscribe({
-      next: (data) => this.users.set(data),
-      error: (error) => this.handleRequestError(error),
-    });
-  }
+  constructor(private http: HttpClient, private customersService: CustomersService) {}
 
-  public toggleUsers(checked: boolean) {
-    this.users.update((users) => {
-      return users.map((user) => {
-        return { ...user, selected: checked };
-      });
-    });
-  }
-
-  private handleRequestError(error: any) {
-    const msg = 'An error occurred while fetching users';
-    toast.error(msg, {
-      position: 'bottom-right',
-      description: error.message,
-      action: {
-        label: 'Close',
-        onClick: () => console.log('Action!'),
-      },
-      actionButtonStyle: 'background-color:#DC2626; color:white;',
-    });
-  }
+  // public toggleUsers(checked: boolean) {
+  //   this.customers.update((customers) => {
+  //     return customers.items.map((customer) => {
+  //       return { ...customer, selected: checked };
+  //     });
+  //   });
+  // }
 
   ngOnInit() {
+    this.getCustomers();
   }
 
   ngOnDestroy(): void {
+  }
+
+  getCustomers(query?: CustomersQuery){
+    this.customersService.getCustomers().subscribe({
+      next: (data) => this.customers.set(data),
+      error: (error) => handleRequestError(error),
+    });
   }
 
   openModal() {

@@ -5,6 +5,8 @@ import { ClickOutsideDirective } from '../../../../../shared/directives/click-ou
 import { AngularSvgIconModule } from 'angular-svg-icon';
 import { ThemeService } from '../../../../../core/services/theme.service';
 import { trigger, state, style, animate, transition } from '@angular/animations';
+import { UserAuthService } from 'src/app/core/services/user-auth/user-auth.service';
+import { AppStore } from 'src/app/app.store';
 
 @Component({
   selector: 'app-profile-menu',
@@ -88,7 +90,7 @@ export class ProfileMenuComponent implements OnInit {
 
   public themeMode = ['light', 'dark'];
 
-  constructor(public themeService: ThemeService, private readonly _router: Router) {}
+  constructor(public themeService: ThemeService, private readonly _router: Router, private appStore: AppStore) {}
 
   ngOnInit(): void {}
 
@@ -110,7 +112,6 @@ export class ProfileMenuComponent implements OnInit {
   }
 
   logout() {
-    //call logout in auth service
-    this._router.navigateByUrl('/auth');
+    this.appStore.logout();
   }
 }

@@ -7,6 +7,8 @@ import { SidebarMenuComponent } from './sidebar-menu/sidebar-menu.component';
 import { AngularSvgIconModule } from 'angular-svg-icon';
 import { NgClass, NgIf } from '@angular/common';
 import { Theme } from 'src/app/core/models/theme.model';
+import { UserAuthService } from 'src/app/core/services/user-auth/user-auth.service';
+import { AppStore } from 'src/app/app.store';
 
 @Component({
   selector: 'app-sidebar',
@@ -18,7 +20,7 @@ import { Theme } from 'src/app/core/models/theme.model';
 export class SidebarComponent implements OnInit {
   public appJson: any = packageJson;
 
-  constructor(public menuService: MenuService, private readonly _router: Router) {}
+  constructor(public menuService: MenuService, private appStore: AppStore) {}
 
   ngOnInit(): void {}
 
@@ -27,6 +29,6 @@ export class SidebarComponent implements OnInit {
   }
 
   logout() {
-    this._router.navigateByUrl('/auth');
+    this.appStore.logout();
   }
 }

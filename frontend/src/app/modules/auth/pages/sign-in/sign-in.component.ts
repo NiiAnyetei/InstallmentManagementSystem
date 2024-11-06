@@ -1,9 +1,14 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { NgClass, NgIf } from '@angular/common';
 import { AngularSvgIconModule } from 'angular-svg-icon';
 import { ButtonComponent } from '../../../../shared/components/button/button.component';
+import { AppStore } from 'src/app/app.store';
+import { components } from 'src/app/core/models/models';
+
+type LoginUserDto = components['schemas']['LoginUserDto'];
+type LoginUserResponseDto = components['schemas']['LoginUserResponseDto'];
 
 @Component({
   selector: 'app-sign-in',
@@ -16,8 +21,11 @@ export class SignInComponent implements OnInit {
   form!: FormGroup;
   submitted = false;
   passwordTextType!: boolean;
+  private readonly appStore = inject(AppStore);
 
-  constructor(private readonly _formBuilder: FormBuilder, private readonly _router: Router) {}
+  public readonly $loggingIn = this.appStore.$loggingIn;
+
+  constructor(private readonly _formBuilder: FormBuilder) {}
 
   onClick() {
     console.log('Button clicked');
@@ -47,6 +55,11 @@ export class SignInComponent implements OnInit {
       return;
     }
 
-    this._router.navigate(['/']);
+    var credentials: LoginUserDto = {
+      email: email,
+      password: password,
+    };
+
+    this.appStore.login(credentials);
   }
 }
