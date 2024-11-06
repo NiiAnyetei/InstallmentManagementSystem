@@ -12,18 +12,18 @@ namespace IMS.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [ApiExplorerSettings(GroupName = "User and Authentication")]
-    public class UserController : ControllerBase
+    public class UsersController : ControllerBase
     {
         private readonly IUserService _userServices;
         private readonly IConfiguration _config;
 
-        public UserController(IUserService userServices, IConfiguration config)
+        public UsersController(IUserService userServices, IConfiguration config)
         {
             _userServices = userServices;
             _config = config;
         }
-        
-        // POST api/<UserController>/login
+
+        // POST api/<UsersController>/login
 
         /// <summary>
         /// Existing user login
@@ -43,13 +43,13 @@ namespace IMS.Controllers
         /// <returns>Tokens</returns>
         /// <response code="200">Returns tokens</response>
         /// <response code="400">Bad request</response>
-        /// <response code="422">Error</response>
+        /// <response code="500">Error</response>
         [AllowAnonymous]
         [HttpPost("login")]
         [Produces("application/json")]
         [ProducesResponseType<LoginUserResponseDto>(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType<Error>(StatusCodes.Status422UnprocessableEntity)]
+        [ProducesResponseType<Error>(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> LoginUser([FromBody] LoginUserDto loginUser)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
@@ -58,7 +58,7 @@ namespace IMS.Controllers
             return Ok(tokens);
         }
 
-        // POST api/<UserController>
+        // POST api/<UsersController>
 
         /// <summary>
         /// New user signup
@@ -79,13 +79,13 @@ namespace IMS.Controllers
         /// <returns>A User</returns>
         /// <response code="201">Returns the user</response>
         /// <response code="400">Bad request</response>
-        /// <response code="422">Error</response>
+        /// <response code="500">Error</response>
         [AllowAnonymous]
         [HttpPost]
         [Produces("application/json")]
         [ProducesResponseType<UserDto>(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType<Error>(StatusCodes.Status422UnprocessableEntity)]
+        [ProducesResponseType<Error>(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> CreateUser([FromBody] NewUserDto newUser)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
@@ -94,7 +94,7 @@ namespace IMS.Controllers
             return Created(string.Empty, user);
         }
 
-        // POST api/<UserController>/refresh
+        // POST api/<UsersController>/refresh
 
         /// <summary>
         /// Refresh Token
@@ -114,13 +114,13 @@ namespace IMS.Controllers
         /// <returns>Refresh Token</returns>
         /// <response code="200">Returns the Refresh Token</response>
         /// <response code="400">Bad request</response>
-        /// <response code="422">Error</response>
+        /// <response code="500">Error</response>
         [AllowAnonymous]
         [HttpPost("refresh")]
         [Produces("application/json")]
         [ProducesResponseType<UserDto>(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType<Error>(StatusCodes.Status422UnprocessableEntity)]
+        [ProducesResponseType<Error>(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> RefreshToken([FromBody] NewRefreshTokenDto newRefreshTokenDto)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
@@ -129,7 +129,7 @@ namespace IMS.Controllers
             return Ok(refreshToken);
         }
 
-        // GET: api/<UserController>
+        // GET: api/<UsersController>
 
         /// <summary>
         /// Get current user
@@ -141,14 +141,13 @@ namespace IMS.Controllers
         /// <response code="200">Returns the user</response>
         /// <response code="400">Bad request</response>
         /// <response code="401">Unauthorized</response>
-        /// <response code="422">Error</response>
+        /// <response code="500">Error</response>
         [Authorize]
         [HttpGet("me")]
         [Produces("application/json")]
         [ProducesResponseType<UserDto>(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        //[ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType<Error>(StatusCodes.Status422UnprocessableEntity)]
+        [ProducesResponseType<Error>(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetUser()
         {
             var username = User.GetUsername();
@@ -156,7 +155,7 @@ namespace IMS.Controllers
             return Ok(user);
         }
 
-        // PUT: api/<UserController>
+        // PUT: api/<UsersController>
 
         /// <summary>
         /// Update current user
@@ -177,14 +176,13 @@ namespace IMS.Controllers
         /// <response code="200">Returns the user</response>
         /// <response code="400">Bad request</response>
         /// <response code="401">Unauthorized</response>
-        /// <response code="422">Error</response>
+        /// <response code="500">Error</response>
         [Authorize]
         [HttpPut]
         [Produces("application/json")]
         [ProducesResponseType<UserDto>(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        //[ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType<Error>(StatusCodes.Status422UnprocessableEntity)]
+        [ProducesResponseType<Error>(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> UpdateUser([FromBody] UpdatedUserDto updatedUser)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);

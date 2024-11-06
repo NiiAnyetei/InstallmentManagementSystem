@@ -9,16 +9,16 @@ namespace IMS.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [ApiExplorerSettings(GroupName = "Bills")]
-    public class BillController : ControllerBase
+    public class BillsController : ControllerBase
     {
         private readonly IBillService _billService;
 
-        public BillController(IBillService billService)
+        public BillsController(IBillService billService)
         {
             _billService = billService;
         }
 
-        // GET: api/<BillController>/:billId
+        // GET: api/<BillsController>/:billId
 
         /// <summary>
         /// Get bill
@@ -30,21 +30,20 @@ namespace IMS.Controllers
         /// <response code="200">Returns the bill</response>
         /// <response code="400">Bad request</response>
         /// <response code="401">Unauthorized</response>
-        /// <response code="422">Error</response>
+        /// <response code="500">Error</response>
         [Authorize]
         [HttpGet("{billId}")]
         [Produces("application/json")]
         [ProducesResponseType<BillDto>(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        //[ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType<Error>(StatusCodes.Status422UnprocessableEntity)]
+        [ProducesResponseType<Error>(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetBill(Guid billId)
         {
             var bill = await _billService.GetAsync(billId);
             return Ok(bill);
         }
 
-        // GET: api/<BillController>
+        // GET: api/<BillsController>
 
         /// <summary>
         /// Get bills
@@ -56,14 +55,13 @@ namespace IMS.Controllers
         /// <response code="200">Returns the bills</response>
         /// <response code="400">Bad request</response>
         /// <response code="401">Unauthorized</response>
-        /// <response code="422">Error</response>
+        /// <response code="500">Error</response>
         [Authorize]
         [HttpGet]
         [Produces("application/json")]
         [ProducesResponseType<BillsDto>(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        //[ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType<Error>(StatusCodes.Status422UnprocessableEntity)]
+        [ProducesResponseType<Error>(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetBills([FromQuery] BillsQuery query)
         {
             var bills = await _billService.GetAllAsync(query);

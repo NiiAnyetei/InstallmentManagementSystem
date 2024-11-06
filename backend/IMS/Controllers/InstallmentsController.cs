@@ -12,7 +12,7 @@ namespace IMS.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [ApiExplorerSettings(GroupName = "Installment")]
-    public class InstallmentController : ControllerBase
+    public class InstallmentsController : ControllerBase
     {
         private readonly IConfiguration _config;
         private readonly IInstallmentService _installmentService;
@@ -20,7 +20,7 @@ namespace IMS.Controllers
         private readonly ICustomerService _customerService;
         private readonly IBillService _billService;
 
-        public InstallmentController(IConfiguration config, IInstallmentService installmentService, IPaystackService paystackService, ICustomerService customerService, IBillService billService)
+        public InstallmentsController(IConfiguration config, IInstallmentService installmentService, IPaystackService paystackService, ICustomerService customerService, IBillService billService)
         {
             _config = config;
             _installmentService = installmentService;
@@ -29,7 +29,7 @@ namespace IMS.Controllers
             _billService = billService;
         }
 
-        // POST api/<InstallmentController>
+        // POST api/<InstallmentsController>
 
         /// <summary>
         /// New installment
@@ -58,13 +58,14 @@ namespace IMS.Controllers
         /// <returns>A Installment</returns>
         /// <response code="201">Returns the installment</response>
         /// <response code="400">Bad request</response>
-        /// <response code="422">Error</response>
+        /// <response code="401">Unauthorized</response>
+        /// <response code="500">Error</response>
         [Authorize]
         [HttpPost]
         [Produces("application/json")]
         [ProducesResponseType<NewInstallmentDto>(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType<Error>(StatusCodes.Status422UnprocessableEntity)]
+        [ProducesResponseType<Error>(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> CreateInstallment([FromBody] NewInstallmentDto newInstallment)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
@@ -76,7 +77,7 @@ namespace IMS.Controllers
             return Created(string.Empty, installment);
         }
 
-        // GET: api/<InstallmentController>/:installmentId
+        // GET: api/<InstallmentsController>/:installmentId
 
         /// <summary>
         /// Get installment
@@ -88,21 +89,20 @@ namespace IMS.Controllers
         /// <response code="200">Returns the installment</response>
         /// <response code="400">Bad request</response>
         /// <response code="401">Unauthorized</response>
-        /// <response code="422">Error</response>
+        /// <response code="500">Error</response>
         [Authorize]
         [HttpGet("{installmentId}")]
         [Produces("application/json")]
         [ProducesResponseType<InstallmentDto>(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        //[ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType<Error>(StatusCodes.Status422UnprocessableEntity)]
+        [ProducesResponseType<Error>(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetInstallment(Guid installmentId)
         {
             var installment = await _installmentService.GetAsync(installmentId);
             return Ok(installment);
         }
 
-        // GET: api/<InstallmentController>
+        // GET: api/<InstallmentsController>
 
         /// <summary>
         /// Get installments
@@ -114,14 +114,13 @@ namespace IMS.Controllers
         /// <response code="200">Returns the installments</response>
         /// <response code="400">Bad request</response>
         /// <response code="401">Unauthorized</response>
-        /// <response code="422">Error</response>
+        /// <response code="500">Error</response>
         [Authorize]
         [HttpGet]
         [Produces("application/json")]
         [ProducesResponseType<InstallmentsDto>(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        //[ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType<Error>(StatusCodes.Status422UnprocessableEntity)]
+        [ProducesResponseType<Error>(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetInstallments([FromQuery] InstallmentsQuery query)
         {
             var installments = await _installmentService.GetAllAsync(query);
@@ -147,14 +146,13 @@ namespace IMS.Controllers
         /// <response code="200">Returns a installment</response>
         /// <response code="400">Bad request</response>
         /// <response code="401">Unauthorized</response>
-        /// <response code="422">Error</response>
+        /// <response code="500">Error</response>
         [Authorize]
         [HttpPut("{installmentId}")]
         [Produces("application/json")]
         [ProducesResponseType<InstallmentDto>(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        //[ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType<Error>(StatusCodes.Status422UnprocessableEntity)]
+        [ProducesResponseType<Error>(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> UpdateArticle(Guid installmentId, [FromBody] UpdatedInstallmentDto updatedInstallmentDto)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);

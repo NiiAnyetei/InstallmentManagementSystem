@@ -13,18 +13,18 @@ namespace IMS.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [ApiExplorerSettings(GroupName = "Customer")]
-    public class CustomerController : ControllerBase
+    public class CustomersController : ControllerBase
     {
         private readonly ICustomerService _customerService;
         private readonly IConfiguration _config;
 
-        public CustomerController(ICustomerService customerService, IConfiguration config)
+        public CustomersController(ICustomerService customerService, IConfiguration config)
         {
             _customerService = customerService;
             _config = config;
         }
 
-        // POST api/<CustomerController>
+        // POST api/<CustomersController>
 
         /// <summary>
         /// New customer
@@ -47,13 +47,14 @@ namespace IMS.Controllers
         /// <returns>A Customer</returns>
         /// <response code="201">Returns the customer</response>
         /// <response code="400">Bad request</response>
-        /// <response code="422">Error</response>
+        /// <response code="401">Unauthorized</response>
+        /// <response code="500">Error</response>
         [Authorize]
         [HttpPost]
         [Produces("application/json")]
         [ProducesResponseType<CustomerDto>(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType<Error>(StatusCodes.Status422UnprocessableEntity)]
+        [ProducesResponseType<Error>(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> CreateCustomer([FromBody] NewCustomerDto newCustomer)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
@@ -62,7 +63,7 @@ namespace IMS.Controllers
             return Created(string.Empty, customer);
         }
 
-        // GET: api/<CustomerController>/:customerId
+        // GET: api/<CustomersController>/:customerId
 
         /// <summary>
         /// Get customer
@@ -74,21 +75,20 @@ namespace IMS.Controllers
         /// <response code="200">Returns the customer</response>
         /// <response code="400">Bad request</response>
         /// <response code="401">Unauthorized</response>
-        /// <response code="422">Error</response>
+        /// <response code="500">Error</response>
         [Authorize]
         [HttpGet("{customerId}")]
         [Produces("application/json")]
         [ProducesResponseType<CustomerDto>(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        //[ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType<Error>(StatusCodes.Status422UnprocessableEntity)]
+        [ProducesResponseType<Error>(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetCustomer(Guid customerId)
         {
             var customer = await _customerService.GetAsync(customerId);
             return Ok(customer);
         }
 
-        // GET: api/<CustomerController>
+        // GET: api/<CustomersController>
 
         /// <summary>
         /// Get customers
@@ -100,14 +100,13 @@ namespace IMS.Controllers
         /// <response code="200">Returns the customers</response>
         /// <response code="400">Bad request</response>
         /// <response code="401">Unauthorized</response>
-        /// <response code="422">Error</response>
+        /// <response code="500">Error</response>
         [Authorize]
         [HttpGet]
         [Produces("application/json")]
         [ProducesResponseType<CustomersDto>(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        //[ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType<Error>(StatusCodes.Status422UnprocessableEntity)]
+        [ProducesResponseType<Error>(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetCustomers([FromQuery] CustomersQuery query)
         {
             var customers = await _customerService.GetAllAsync(query);
@@ -133,14 +132,13 @@ namespace IMS.Controllers
         /// <response code="200">Returns a customer</response>
         /// <response code="400">Bad request</response>
         /// <response code="401">Unauthorized</response>
-        /// <response code="422">Error</response>
+        /// <response code="500">Error</response>
         [Authorize]
         [HttpPut("{customerId}")]
         [Produces("application/json")]
         [ProducesResponseType<CustomerDto>(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        //[ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType<Error>(StatusCodes.Status422UnprocessableEntity)]
+        [ProducesResponseType<Error>(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> UpdateArticle(Guid customerId, [FromBody] UpdatedCustomerDto updatedCustomerDto)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);

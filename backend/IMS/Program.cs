@@ -90,6 +90,9 @@ builder.Services.AddSwaggerGen(c =>
     c.DocInclusionPredicate((_, api) => !string.IsNullOrWhiteSpace(api.GroupName));
 
     c.TagActionsBy(api => api.GroupName);
+
+    c.SupportNonNullableReferenceTypes();
+    c.SchemaFilter<SwaggerRequiredSchemaFilter>();
 });
 
 // Add Hangfire services.
@@ -101,6 +104,17 @@ builder.Services.AddHangfire(configuration => configuration
 
 // Add the processing server as IHostedService
 builder.Services.AddHangfireServer();
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowSpecificOrigin",
+        builder =>
+        {
+            builder.WithOrigins("http://localhost:4200")
+                   .AllowAnyMethod()
+                   .AllowAnyHeader();
+        });
+});
 
 builder.Services.Configure<DbSettings>(builder.Configuration.GetSection("DbSettings"));
 builder.Services.AddScoped<IMSDbContext>();
@@ -140,8 +154,11 @@ var app = builder.Build();
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
+    c.SwaggerEndpoint("v1/swagger.json", "V1 Docs");
     c.ConfigObject.AdditionalItems.Add("persistAuthorization", "true");
 });
+
+app.UseCors("AllowSpecificOrigin");
 
 app.UseHttpsRedirection();
 

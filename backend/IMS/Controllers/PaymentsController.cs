@@ -9,16 +9,16 @@ namespace IMS.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [ApiExplorerSettings(GroupName = "Payments")]
-    public class PaymentController : ControllerBase
+    public class PaymentsController : ControllerBase
     {
         private readonly IPaymentService _paymentService;
 
-        public PaymentController(IPaymentService paymentService)
+        public PaymentsController(IPaymentService paymentService)
         {
             _paymentService = paymentService;
         }
 
-        // GET: api/<PaymentController>/:paymentId
+        // GET: api/<PaymentsController>/:paymentId
 
         /// <summary>
         /// Get payment
@@ -30,21 +30,20 @@ namespace IMS.Controllers
         /// <response code="200">Returns the payment</response>
         /// <response code="400">Bad request</response>
         /// <response code="401">Unauthorized</response>
-        /// <response code="422">Error</response>
+        /// <response code="500">Error</response>
         [Authorize]
         [HttpGet("{paymentId}")]
         [Produces("application/json")]
         [ProducesResponseType<PaymentDto>(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        //[ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType<Error>(StatusCodes.Status422UnprocessableEntity)]
+        [ProducesResponseType<Error>(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetPayment(Guid paymentId)
         {
             var payment = await _paymentService.GetAsync(paymentId);
             return Ok(payment);
         }
 
-        // GET: api/<PaymentController>
+        // GET: api/<PaymentsController>
 
         /// <summary>
         /// Get payments
@@ -56,14 +55,13 @@ namespace IMS.Controllers
         /// <response code="200">Returns the payments</response>
         /// <response code="400">Bad request</response>
         /// <response code="401">Unauthorized</response>
-        /// <response code="422">Error</response>
+        /// <response code="500">Error</response>
         [Authorize]
         [HttpGet]
         [Produces("application/json")]
         [ProducesResponseType<PaymentsDto>(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        //[ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType<Error>(StatusCodes.Status422UnprocessableEntity)]
+        [ProducesResponseType<Error>(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetPayments([FromQuery] PaymentsQuery query)
         {
             var payments = await _paymentService.GetAllAsync(query);
