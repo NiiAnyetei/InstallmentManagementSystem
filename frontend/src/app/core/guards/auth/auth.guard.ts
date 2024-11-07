@@ -1,7 +1,18 @@
 import { inject } from '@angular/core';
-import { CanActivateFn, Router } from '@angular/router';
+import { ActivatedRouteSnapshot, CanActivateChildFn, CanActivateFn, Router, RouterStateSnapshot } from '@angular/router';
 import { AppStore } from 'src/app/app.store';
 
-export const AuthGuard: CanActivateFn = (route, state) => {
-  return inject(AppStore).$isAuthenticated() ? true : inject(Router).createUrlTree(['/auth/sign-in']);
+export const canActivate: CanActivateChildFn = (route: ActivatedRouteSnapshot, state: RouterStateSnapshot) => {
+  const appStore = inject(AppStore);
+
+  // return appStore.$isAuthenticated() ? true : appStore.logout();
+  
+  if (appStore.$isAuthenticated()) {
+    return true;
+  } else {
+    appStore.logout();
+    return false;
+  }
 };
+
+export const canActivateChild: CanActivateChildFn = (route: ActivatedRouteSnapshot, state: RouterStateSnapshot) => canActivate(route, state);

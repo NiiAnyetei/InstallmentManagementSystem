@@ -31,7 +31,7 @@ export class UserAuthService {
     localStorage.removeItem(this._tokenKey);
   }
 
-  refreshAccessToken(newRefreshTokenDto: NewRefreshTokenDto): Observable<any> {
+  refreshAccessToken(newRefreshTokenDto: NewRefreshTokenDto): Observable<LoginUserResponseDto> {
     return this.http.post<LoginUserResponseDto>(`${environment.apiUrl}/${controller}/refresh`, newRefreshTokenDto);
   }
 }

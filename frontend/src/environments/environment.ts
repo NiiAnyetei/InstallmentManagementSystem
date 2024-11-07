@@ -4,7 +4,7 @@
 
 export const environment = {
   production: false,
-  apiUrl: "https://vtcmd9j9-7009.uks1.devtunnels.ms/api"
+  apiUrl: "https://localhost:7009/api"
 };
 
 /*

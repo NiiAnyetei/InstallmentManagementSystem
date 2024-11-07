@@ -1,7 +1,7 @@
 import { computed, Injectable, signal } from '@angular/core';
 import { components } from './core/models/models';
 import { createEffect } from 'src/create-effect';
-import { catchError, exhaustMap, finalize, tap } from 'rxjs';
+import { catchError, exhaustMap, finalize, of, tap } from 'rxjs';
 import { UserAuthService } from './core/services/user-auth/user-auth.service';
 import { Router } from '@angular/router';
 import { handleRequestError } from './core/utils/custom-functions';
@@ -13,44 +13,38 @@ type NewRefreshTokenDto = components['schemas']['NewRefreshTokenDto'];
 @Injectable({ providedIn: 'root' })
 export class AppStore {
   private readonly _tokenKey: string = 'ims-token';
-  private readonly _stringifiedToken = localStorage.getItem(this._tokenKey);
-  private readonly _storedToken: LoginUserResponseDto = this._stringifiedToken
-    ? JSON.parse(this._stringifiedToken)
-    : {};
-
   private readonly state = {
     $token: signal<LoginUserResponseDto>({
-      accessToken: this._storedToken.accessToken ?? '',
-      refreshToken: this._storedToken.refreshToken ?? '',
-      expiresAt: this._storedToken.expiresAt ?? '',
-      username: this._storedToken.username ?? '',
+      accessToken: '',
+      refreshToken: '',
+      expiresAt: '',
+      username: '',
     }),
     $loggingIn: signal<boolean>(false),
   } as const;
 
   public readonly $token = this.state.$token.asReadonly();
   public readonly $loggingIn = this.state.$loggingIn.asReadonly();
-  public readonly $isAuthenticated = computed<boolean>(() => this.$token().accessToken !== '');
+  public readonly $accessToken = computed<string>(() => this.$token().accessToken);
+  public readonly $refreshToken = computed<string>(() => this.$token().refreshToken);
+  public readonly $isAuthenticated = computed<boolean>(() => this.$token().accessToken !== '' && this.isLoggedIn());
 
-  constructor(private userAuthService: UserAuthService, private readonly _router: Router) {}
+  constructor(private userAuthService: UserAuthService, private readonly _router: Router) {
+    this.loadState();
+  }
 
   login(credentials: LoginUserDto) {
     this.handleLogin(credentials);
   }
-  
+
   logout() {
     localStorage.removeItem(this._tokenKey);
     this.reset();
     this._router.navigate(['/auth/sign-in']);
   }
-  
-  refreshAccessToken() {
-    const newRefreshTokenDto: NewRefreshTokenDto = {
-      accessToken: this._storedToken.accessToken,
-      refreshToken: this._storedToken.refreshToken,
-    };
 
-    this.handleRefreshAccessToken(newRefreshTokenDto);
+  refreshAccessToken(newRefreshTokenDto: NewRefreshTokenDto) {
+    return of(this.handleRefreshAccessToken(newRefreshTokenDto));
   }
 
   reset() {
@@ -60,6 +54,11 @@ export class AppStore {
       expiresAt: '',
       username: ''
     })
+  }
+
+  updateToken(newAccessToken: LoginUserResponseDto) {
+    localStorage.setItem(this._tokenKey, JSON.stringify(newAccessToken));
+    this.state.$token.set(newAccessToken);
   }
 
   private handleLogin = createEffect<LoginUserDto>((_) =>
@@ -73,12 +72,14 @@ export class AppStore {
             this.state.$token.set(response);
             this._router.navigate(['/']);
           }),
-          catchError(async (error) => handleRequestError(error)),
+          catchError(async (error) => {
+            handleRequestError(error);
+          }),
         );
       }),
     ),
   );
-  
+
   private handleRefreshAccessToken = createEffect<NewRefreshTokenDto>((_) =>
     _.pipe(
       exhaustMap((newRefreshTokenDto) => {
@@ -86,13 +87,33 @@ export class AppStore {
           tap((response) => {
             localStorage.setItem(this._tokenKey, JSON.stringify(response));
             this.state.$token.set(response);
+            return response;
           }),
           catchError(async (error) => {
             handleRequestError(error);
-            this._router.navigate(['/auth/sign-in']);
           }),
         );
       }),
     ),
   );
+
+  private loadState() {
+    const stringifiedSavedState = localStorage.getItem(this._tokenKey);
+
+    if (stringifiedSavedState) {
+      const savedState: LoginUserResponseDto = JSON.parse(localStorage.getItem(this._tokenKey)!);
+      this.state.$token.set(savedState);
+      this.state.$loggingIn.set(false);
+    }
+  }
+
+  private isLoggedIn() {
+    var expiresAt = new Date(this.$token().expiresAt);
+    var currentDate = new Date();
+
+    if (currentDate > expiresAt)
+      return false
+    else
+      return true
+  }
 }

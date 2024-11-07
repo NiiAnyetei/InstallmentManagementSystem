@@ -6,8 +6,7 @@ export function handleRequestError(error: any) {
   const msg = 'Error';
   toast.error(msg, {
     position: 'bottom-right',
-    //   description: error.message,
-    description: error.error.detail,
+    description: error.error?.detail ? error.error?.detail : error.message,
     action: {
       label: 'Close',
       onClick: () => console.log('Action!'),
