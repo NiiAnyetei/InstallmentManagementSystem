@@ -32,7 +32,7 @@ namespace ServiceLayer.Utils
                 AccessToken = accessToken,
                 RefreshToken = Guid.NewGuid().ToString(),
                 Username = username,
-                ExpiryDate = DateTime.UtcNow.AddDays(7)
+                ExpiresAt = secToken.ValidTo
             };
 
             return token;

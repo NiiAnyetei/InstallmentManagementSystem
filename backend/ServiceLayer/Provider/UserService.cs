@@ -49,7 +49,7 @@ namespace ServiceLayer.Provider
                 await InvalidateSavedRefreshTokens(userFromDb.Username);
                 await AddUserRefreshToken(userRefreshToken);
 
-                return new LoginUserResponseDto(token.AccessToken, token.RefreshToken, token.ExpiryDate, token.Username);
+                return new LoginUserResponseDto(token.AccessToken, token.RefreshToken, token.ExpiresAt, token.Username);
             }
             catch (Exception ex)
             {
@@ -79,7 +79,7 @@ namespace ServiceLayer.Provider
                 await DeleteUserRefreshToken(username, newRefreshTokenDto.RefreshToken);
                 await AddUserRefreshToken(userRefreshToken);
 
-                return new NewRefreshTokenResponseDto(token.AccessToken, token.RefreshToken, token.ExpiryDate, token.Username);
+                return new NewRefreshTokenResponseDto(token.AccessToken, token.RefreshToken, token.ExpiresAt, token.Username);
             }
             catch (Exception ex)
             {
