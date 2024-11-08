@@ -69,6 +69,7 @@ namespace ServiceLayer.Provider
 
                 if (!string.IsNullOrWhiteSpace(query.FirstName)) customers = customers.Where(c => c.FirstName == query.FirstName);
                 if (!string.IsNullOrWhiteSpace(query.LastName)) customers = customers.Where(c => c.LastName == query.LastName);
+                if (!string.IsNullOrWhiteSpace(query.FullName)) customers = customers.Where(c => c.FullName.Contains(query.FullName));
                 if (!string.IsNullOrWhiteSpace(query.PhoneNumber)) customers = customers.Where(c => c.PhoneNumber == query.PhoneNumber);
                 if (!string.IsNullOrWhiteSpace(query.Email)) customers = customers.Where(c => c.Email == query.Email);
 

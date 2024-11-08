@@ -21,4 +21,4 @@ public record CustomerDto(Guid Id, string FirstName, string LastName, string Ful
 
 public record CustomersDto(List<CustomerDto> Items, int Count);
 
-public record CustomersQuery(string? FirstName, string? LastName, string? PhoneNumber, string? Email, int Limit = 20, int Offset = 0);
+public record CustomersQuery(string? FirstName, string? LastName, string? FullName, string? PhoneNumber, string? Email, int Limit = 20, int Offset = 0);
