@@ -168,6 +168,7 @@ export interface paths {
                 query?: {
                     FirstName?: string;
                     LastName?: string;
+                    FullName?: string;
                     PhoneNumber?: string;
                     Email?: string;
                     Limit?: number;

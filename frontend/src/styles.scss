@@ -3,6 +3,7 @@
 @import 'tailwindcss/base';
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
+@import '@angular/cdk/overlay-prebuilt.css';
 
 @layer base {
   :root {
@@ -160,6 +161,73 @@
   .loading{
     @apply pointer-events-none opacity-50;
   }
+
+  th {
+    font-weight: 500;
+    padding: 0.625rem 1rem;
+    font-weight: 500;
+    font-size: 0.8125rem;
+    line-height: 1.125rem;
+    vertical-align: middle;
+    @apply border-r border-b border-muted/20 bg-muted/5;
+  }
+
+  td {
+    padding: 0.75rem 1rem;
+    font-size: 0.85rem;
+    @apply border-b  border-muted/20;
+  }
+
+  .example-menu {
+    display: inline-flex;
+    flex-direction: column;
+    min-width: 180px;
+    max-width: 280px;
+    // background-color: rgba(255, 255, 255);
+    @apply bg-background;
+    padding: 6px 0;
+  }
+  
+  .example-menu-item,
+  .example-standalone-trigger {
+    @apply text-xs text-muted-foreground;
+    background-color: transparent;
+    cursor: pointer;
+    border: none;
+  
+    user-select: none;
+    min-width: 64px;
+    line-height: 36px;
+    padding: 0 16px;
+  
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    flex: 1;
+  }
+  
+  .example-menu-item:hover {
+    // background-color: rgb(208, 208, 208);
+    @apply bg-card/50;
+  }
+  
+  .example-menu-item:active {
+    // background-color: rgb(170, 170, 170);
+    @apply bg-card
+  }
+  
+  // .example-standalone-item {
+  //   // background-color: rgb(239, 239, 239);
+  //   @apply bg-foreground
+  // }
+  // .example-standalone-item:hover {
+  //   // background-color: rgb(208, 208, 208);
+  //   @apply bg-foreground
+  // }
+  // .example-standalone-item[aria-expanded='true'] {
+  //   // background-color: rgb(208, 208, 208);
+  //   @apply bg-foreground
+  // }
 }
 
 /** Scroll bar **/
