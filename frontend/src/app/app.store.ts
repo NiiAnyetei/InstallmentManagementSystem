@@ -8,11 +8,13 @@ import { handleRequestError } from './core/utils/custom-functions';
 
 type LoginUserDto = components['schemas']['LoginUserDto'];
 type LoginUserResponseDto = components['schemas']['LoginUserResponseDto'];
+type UserDto = components['schemas']['UserDto'];
 type NewRefreshTokenDto = components['schemas']['NewRefreshTokenDto'];
 
 @Injectable({ providedIn: 'root' })
 export class AppStore {
   private readonly _tokenKey: string = 'ims-token';
+  private readonly _userKey: string = 'ims-user';
   private readonly state = {
     $token: signal<LoginUserResponseDto>({
       accessToken: '',
@@ -20,27 +22,38 @@ export class AppStore {
       expiresAt: '',
       username: '',
     }),
+    $user: signal<UserDto>({
+      username: '',
+      email: '',
+      bio: '',
+      image: ''
+    }),
     $loggingIn: signal<boolean>(false),
   } as const;
 
   public readonly $token = this.state.$token.asReadonly();
+  public readonly $user = this.state.$user.asReadonly();
   public readonly $loggingIn = this.state.$loggingIn.asReadonly();
   public readonly $accessToken = computed<string>(() => this.$token().accessToken);
   public readonly $refreshToken = computed<string>(() => this.$token().refreshToken);
   public readonly $isAuthenticated = computed<boolean>(() => this.$token().accessToken !== '' && this.isLoggedIn());
 
-  constructor(private userAuthService: UserAuthService, private readonly _router: Router) {
+  constructor(private userAuthService: UserAuthService, private readonly router: Router) {
     this.loadState();
   }
 
   login(credentials: LoginUserDto) {
     this.handleLogin(credentials);
   }
+  
+  getCurrentUser() {
+    this.handleGetCurrentUser();
+  }
 
   logout() {
     localStorage.removeItem(this._tokenKey);
     this.reset();
-    this._router.navigate(['/auth/sign-in']);
+    this.router.navigate(['/auth/sign-in']);
   }
 
   refreshAccessToken(newRefreshTokenDto: NewRefreshTokenDto) {
@@ -54,11 +67,25 @@ export class AppStore {
       expiresAt: '',
       username: ''
     })
+
+    this.state.$user.set({
+      username: '',
+      email: '',
+      bio: '',
+      image: ''
+    })
+
+    this.state.$loggingIn.set(false);
   }
 
   updateToken(newAccessToken: LoginUserResponseDto) {
     localStorage.setItem(this._tokenKey, JSON.stringify(newAccessToken));
     this.state.$token.set(newAccessToken);
+  }
+  
+  updateUser(user: UserDto) {
+    localStorage.setItem(this._userKey, JSON.stringify(user));
+    this.state.$user.set(user);
   }
 
   private handleLogin = createEffect<LoginUserDto>((_) =>
@@ -70,7 +97,8 @@ export class AppStore {
           tap((response) => {
             localStorage.setItem(this._tokenKey, JSON.stringify(response));
             this.state.$token.set(response);
-            this._router.navigate(['/']);
+            this.handleGetCurrentUser();
+            this.router.navigate(['/']);
           }),
           catchError(async (error) => {
             handleRequestError(error);
@@ -96,20 +124,40 @@ export class AppStore {
       }),
     ),
   );
+  
+  private handleGetCurrentUser = createEffect((_) =>
+    _.pipe(
+      exhaustMap(() => {
+        return this.userAuthService.getCurrentUser().pipe(
+          tap((response) => {
+            localStorage.setItem(this._userKey, JSON.stringify(response));
+            this.state.$user.set(response);
+            return response;
+          }),
+          catchError(async (error) => {
+            handleRequestError(error);
+          }),
+        );
+      }),
+    ),
+  );
 
   private loadState() {
     const stringifiedSavedState = localStorage.getItem(this._tokenKey);
 
     if (stringifiedSavedState) {
-      const savedState: LoginUserResponseDto = JSON.parse(localStorage.getItem(this._tokenKey)!);
-      this.state.$token.set(savedState);
+      const savedTokenState: LoginUserResponseDto = JSON.parse(localStorage.getItem(this._tokenKey)!);
+      const savedUserState: UserDto = JSON.parse(localStorage.getItem(this._userKey)!);
+
+      this.state.$token.set(savedTokenState);
+      this.state.$user.set(savedUserState);
       this.state.$loggingIn.set(false);
     }
   }
 
   private isLoggedIn() {
-    var expiresAt = new Date(this.$token().expiresAt);
-    var currentDate = new Date();
+    let expiresAt = new Date(this.$token().expiresAt);
+    let currentDate = new Date();
 
     if (currentDate > expiresAt)
       return false

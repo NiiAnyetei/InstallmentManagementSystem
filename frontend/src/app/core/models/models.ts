@@ -91,9 +91,12 @@ export interface paths {
         get: {
             parameters: {
                 query?: {
-                    Customer?: string;
-                    Limit?: number;
-                    Offset?: number;
+                    customer?: string;
+                    from?: string;
+                    to?: string;
+                    status?: components["schemas"]["BillStatus"];
+                    limit?: number;
+                    offset?: number;
                 };
                 header?: never;
                 path?: never;
@@ -166,13 +169,14 @@ export interface paths {
         get: {
             parameters: {
                 query?: {
-                    FirstName?: string;
-                    LastName?: string;
-                    FullName?: string;
-                    PhoneNumber?: string;
-                    Email?: string;
-                    Limit?: number;
-                    Offset?: number;
+                    firstName?: string;
+                    lastName?: string;
+                    fullName?: string;
+                    phoneNumber?: string;
+                    email?: string;
+                    identificationNumber?: string;
+                    limit?: number;
+                    offset?: number;
                 };
                 header?: never;
                 path?: never;
@@ -460,9 +464,13 @@ export interface paths {
         get: {
             parameters: {
                 query?: {
-                    Customer?: string;
-                    Limit?: number;
-                    Offset?: number;
+                    item?: string;
+                    customer?: string;
+                    from?: string;
+                    to?: string;
+                    status?: components["schemas"]["InstallmentStatus"];
+                    limit?: number;
+                    offset?: number;
                 };
                 header?: never;
                 path?: never;
@@ -829,9 +837,11 @@ export interface paths {
         get: {
             parameters: {
                 query?: {
-                    Customer?: string;
-                    Limit?: number;
-                    Offset?: number;
+                    customer?: string;
+                    from?: string;
+                    to?: string;
+                    limit?: number;
+                    offset?: number;
                 };
                 header?: never;
                 path?: never;

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { NgClass } from '@angular/common';
 import { ClickOutsideDirective } from '../../../../../shared/directives/click-outside.directive';
@@ -38,6 +38,7 @@ import { AppStore } from 'src/app/app.store';
   ],
 })
 export class ProfileMenuComponent implements OnInit {
+  appStore = inject(AppStore);
   public isOpen = false;
   public profileMenu = [
     {
@@ -90,7 +91,7 @@ export class ProfileMenuComponent implements OnInit {
 
   public themeMode = ['light', 'dark'];
 
-  constructor(public themeService: ThemeService, private readonly _router: Router, private appStore: AppStore) {}
+  constructor(public themeService: ThemeService) {}
 
   ngOnInit(): void {}
 

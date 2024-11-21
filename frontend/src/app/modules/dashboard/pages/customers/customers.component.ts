@@ -1,15 +1,17 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { AngularSvgIconModule } from 'angular-svg-icon';
-import { FormGroup, FormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Dialog, DialogModule } from '@angular/cdk/dialog';
 import { AddCustomerModalComponent } from '../../components/customers/modal/add-customer-modal/add-customer-modal.component';
 import { NgxPaginationModule, PaginationInstance } from 'ngx-pagination';
 import { CommonModule, NgClass } from '@angular/common';
 import { CustomersService } from 'src/app/core/services/customers/customers.service';
 import { components, paths } from 'src/app/core/models/models';
-import { handleRequestError } from 'src/app/core/utils/custom-functions';
+import { handleRequestError, handleRequestSuccess } from 'src/app/core/utils/custom-functions';
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { CdkMenu, CdkMenuItem, CdkMenuTrigger } from '@angular/cdk/menu';
+import { DialogClosedResult } from 'src/app/core/models/custom.model';
+import { debounceTime, distinctUntilChanged } from 'rxjs';
 
 type CustomersQuery = paths['/api/customers']['get']['parameters']['query'];
 type CustomerDto = components['schemas']['CustomerDto'];
@@ -27,7 +29,9 @@ type CustomerDtoVM = CustomerDto & { detailsToggled?: boolean, menuToggled?: boo
     NgClass,
     CdkMenuTrigger, 
     CdkMenu, 
-    CdkMenuItem
+    CdkMenuItem,
+    FormsModule,
+    ReactiveFormsModule
   ],
   animations: [
     trigger('openClose', [
@@ -57,55 +61,106 @@ type CustomerDtoVM = CustomerDto & { detailsToggled?: boolean, menuToggled?: boo
 export class CustomersComponent implements OnInit {
   dialog = inject(Dialog);
   customers = signal<CustomerDtoVM[]>([]);
-  filter: string = '';
-  maxSize: number = 7;
-  directionLinks: boolean = true;
-  autoHide: boolean = false;
-  responsive: boolean = false;
+
+  itemsPerPage: number = 10;
+  currentPage: number = 1;
+  totalItems: number = 0;
+
+  isLoading: boolean = false;
+  isFiltersOpen: boolean = false;
+  submitted: boolean = false;
+  isSubmittingForm: boolean = false;
+
+  searchForm!: FormGroup;
+  filtersForm!: FormGroup;
+
+  phoneNumber: string = '';
+  email: string = '';
+  identificationNumber: string = '';
+
   config: PaginationInstance = {
     id: 'customers',
-    itemsPerPage: 1,
-    currentPage: 1,
-    // totalItems: 100
+    itemsPerPage: this.itemsPerPage,
+    currentPage: this.currentPage,
+    totalItems: this.totalItems
   };
-  labels: any = {
-    previousLabel: '',
-    nextLabel: '',
-    screenReaderPaginationLabel: 'Pagination',
-    screenReaderPageLabel: 'page',
-    screenReaderCurrentLabel: `You're on page`,
-  };
-  eventLog: string[] = [];
-  searchForm: FormGroup | undefined;
-  isFiltersOpen: boolean = false;
 
   onPageChange(number: number) {
-    this.logEvent(`pageChange(${number})`);
     this.config.currentPage = number;
+    this.currentPage = number;
+    this.getCustomers();
   }
 
   onPageBoundsCorrection(number: number) {
-    this.logEvent(`pageBoundsCorrection(${number})`);
     this.config.currentPage = number;
+    this.currentPage = number;
+    this.getCustomers();
   }
 
-  private logEvent(message: string) {
-    // this.eventLog.unshift(`${new Date().toISOString()}: ${message}`);
-    console.log(message);
-  }
-
-  constructor(private customersService: CustomersService) {}
+  constructor(private customersService: CustomersService, private formBuilder: FormBuilder) {}
 
   ngOnInit() {
+    this.initSearchForm();
+    this.setupSearchListener();
+    this.initFiltersForm();
     this.getCustomers();
+  }
+
+  get f() {
+    return this.filtersForm.controls;
   }
 
   ngOnDestroy(): void {}
 
-  getCustomers(query?: CustomersQuery) {
-    this.customersService.getCustomers().subscribe({
+  setupSearchListener() {
+    this.searchForm.get('searchTerm')?.valueChanges
+      .pipe(
+        debounceTime(300),
+        distinctUntilChanged()
+      )
+      .subscribe(() => {
+        this.currentPage = 1;
+        this.getCustomers();
+      });
+  }
+
+  initSearchForm(): void {
+    this.searchForm = this.formBuilder.group({
+      searchTerm: ['']
+    });
+  }
+  
+  initFiltersForm(): void {
+    this.filtersForm = this.formBuilder.group({
+      phoneNumber: ['', [ Validators.pattern("^[0-9]*$"), Validators.minLength(9), Validators.maxLength(9)]],
+      email: ['', [Validators.email]],
+      identificationNumber: [''],
+    });
+  }
+
+  getCustomers() {
+    this.isLoading = true;
+
+    const searchTerm = this.searchForm.get('searchTerm')?.value;
+    const phoneNumber = this.filtersForm.get('phoneNumber')?.value;
+    const email = this.filtersForm.get('email')?.value;
+    const identificationNumber = this.filtersForm.get('identificationNumber')?.value;
+
+    let query: CustomersQuery = {
+      fullName: searchTerm,
+      phoneNumber: phoneNumber,
+      email: email,
+      identificationNumber: identificationNumber,
+      limit: this.itemsPerPage,
+      offset: (this.currentPage - 1) * this.itemsPerPage,
+    }
+
+    this.isFiltersOpen = false;
+
+    this.customersService.getCustomers(query).subscribe({
       next: (data) => {
         this.config.totalItems = data.count;
+        // this.totalItems = data.count;
         this.customers.set(data.items);
       },
       error: (error) => handleRequestError(error),
@@ -113,14 +168,26 @@ export class CustomersComponent implements OnInit {
   }
 
   openCreateModal() {
-    const dialogRef = this.dialog.open<string>(AddCustomerModalComponent, {
-      // width: '250px',
-      // data: {name: this.name, animal: this.animal},
+    const dialogRef = this.dialog.open<DialogClosedResult>(AddCustomerModalComponent);
+
+    dialogRef.closed.subscribe((result) => {
+      if(result?.isSuccess){
+        handleRequestSuccess({message: "Operation successful."});
+        this.getCustomers();
+      }
+    });
+  }
+  
+  openEditModal(customer: CustomerDtoVM) {
+    const dialogRef = this.dialog.open<DialogClosedResult>(AddCustomerModalComponent, {
+      data: customer as CustomerDto,
     });
 
     dialogRef.closed.subscribe((result) => {
-      console.log('The dialog was closed');
-      // this.animal = result;
+      if(result?.isSuccess){
+        handleRequestSuccess({message: "Operation successful."});
+        this.getCustomers();
+      }
     });
   }
 
@@ -153,5 +220,13 @@ export class CustomersComponent implements OnInit {
         customer.id === selectedCustomer.id ? { ...selectedCustomer, menuToggled: toggled } : customer,
       ),
     );
+  }
+
+  resetFilters() {
+    this.filtersForm.reset({
+      phoneNumber: '',
+      email: '',
+      identificationNumber: '',
+    });
   }
 }

@@ -1,12 +1,23 @@
 import { toast } from 'ngx-sonner';
 
-export function handleRequestError(error: any) {
-  // const msg = 'An error occurred while fetching users';
-  // const msg = error.error.detail;
-  const msg = 'Error';
-  toast.error(msg, {
+export function handleRequestError(msg: any) {
+  const title = 'Error';
+  toast.error(title, {
     position: 'bottom-right',
-    description: error.error?.detail ? error.error?.detail : error.message,
+    description: msg.error?.detail ? msg.error?.detail : msg.message,
+    action: {
+      label: 'Close',
+      onClick: () => console.log('Action!'),
+    },
+    actionButtonStyle: 'background-color:#DC2626; color:white;',
+  });
+}
+
+export function handleRequestSuccess(msg: any) {
+  const title = 'Success';
+  toast.success(title, {
+    position: 'bottom-right',
+    description: msg.message,
     action: {
       label: 'Close',
       onClick: () => console.log('Action!'),

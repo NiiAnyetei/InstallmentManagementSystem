@@ -7,6 +7,7 @@ import { handleRequestError } from '../../utils/custom-functions';
 
 type LoginUserDto = components['schemas']['LoginUserDto'];
 type LoginUserResponseDto = components['schemas']['LoginUserResponseDto'];
+type UserDto = components['schemas']['UserDto'];
 type NewRefreshTokenDto = components['schemas']['NewRefreshTokenDto'];
 
 const controller: string = 'users';
@@ -25,6 +26,10 @@ export class UserAuthService {
 
   login(credentials: LoginUserDto): Observable<LoginUserResponseDto> {
     return this.http.post<LoginUserResponseDto>(`${environment.apiUrl}/${controller}/login`, credentials);
+  }
+  
+  getCurrentUser(): Observable<UserDto> {
+    return this.http.get<UserDto>(`${environment.apiUrl}/${controller}/me`);
   }
 
   logout() {
