@@ -22,4 +22,4 @@ public record PaymentDto(Guid Id, PaymentMode PaymentMode, decimal Amount, Insta
 
 public record PaymentsDto(List<PaymentDto> Items, int Count);
 
-public record PaymentsQuery(string? Customer, int Limit = 20, int Offset = 0);
+public record PaymentsQuery(string? Customer, DateTime? From, DateTime? To, int Limit = 20, int Offset = 0);

@@ -73,6 +73,9 @@ namespace ServiceLayer.Provider
                 var bills = _context.Bills.AsNoTracking();
 
                 if (!string.IsNullOrWhiteSpace(query.Customer)) bills = bills.Where(b => b.Installment.Customer.FullName.Contains(query.Customer));
+                if (query.From.HasValue) bills = bills.Where(p => p.DueDate >= query.From);
+                if (query.To.HasValue) bills = bills.Where(p => p.DueDate <= query.To);
+                if (query.Status.HasValue) bills = bills.Where(p => p.Status <= query.Status);
 
                 var total = await bills.CountAsync();
                 var pageQuery = bills.Include(b => b.Installment).ThenInclude(i => i.Customer).Skip(query.Offset).Take(query.Limit).AsNoTracking();

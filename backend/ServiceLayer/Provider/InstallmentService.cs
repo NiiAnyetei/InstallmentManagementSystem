@@ -97,7 +97,11 @@ namespace ServiceLayer.Provider
             {
                 var installments = _context.Installments.Select(c => c);
 
+                if (!string.IsNullOrWhiteSpace(query.Item)) installments = installments.Where(i => i.Item.Contains(query.Item));
                 if (!string.IsNullOrWhiteSpace(query.Customer)) installments = installments.Where(i => i.Customer.FullName.Contains(query.Customer));
+                if (query.From.HasValue) installments = installments.Where(i => i.StartDate >= query.From);
+                if (query.To.HasValue) installments = installments.Where(i => i.StartDate <= query.To);
+                if (query.Status.HasValue) installments = installments.Where(i => i.Status == query.Status);
 
                 var total = await installments.CountAsync();
                 var pageQuery = installments.Skip(query.Offset).Take(query.Limit).AsNoTracking();

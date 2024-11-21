@@ -150,6 +150,10 @@ namespace ServiceLayer.Provider
 
                 if (userFromDb == null) throw new Exception("User not found");
 
+                if (await _context.Users.AnyAsync(u => u.Username == updatedUser.Username)) throw new Exception("Username unavailable");
+
+                if (await _context.Users.AnyAsync(u => u.Email == updatedUser.Email)) throw new Exception("Email already taken");
+
                 userFromDb.UpdateUser(updatedUser);
                 await _context.SaveChangesAsync();
 

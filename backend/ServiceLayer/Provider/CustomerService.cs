@@ -33,6 +33,8 @@ namespace ServiceLayer.Provider
                 newCustomer.CreatedBy = username;
                 newCustomer.UpdatedBy = username;
 
+                if (await _context.Customers.AnyAsync(u => u.FullName == newCustomer.FullName)) throw new Exception("Customer already exists");
+
                 await _context.Customers.AddAsync(newCustomer);
                 await _context.SaveChangesAsync();
                 var dto = newCustomer.ToCustomerDto();
@@ -40,7 +42,7 @@ namespace ServiceLayer.Provider
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occured while creating article");
+                _logger.LogError(ex, "An error occured while creating customer");
                 throw;
             }
         }
@@ -67,11 +69,10 @@ namespace ServiceLayer.Provider
             {
                 var customers = _context.Customers.Select(c => c);
 
-                if (!string.IsNullOrWhiteSpace(query.FirstName)) customers = customers.Where(c => c.FirstName == query.FirstName);
-                if (!string.IsNullOrWhiteSpace(query.LastName)) customers = customers.Where(c => c.LastName == query.LastName);
                 if (!string.IsNullOrWhiteSpace(query.FullName)) customers = customers.Where(c => c.FullName.Contains(query.FullName));
-                if (!string.IsNullOrWhiteSpace(query.PhoneNumber)) customers = customers.Where(c => c.PhoneNumber == query.PhoneNumber);
+                if (!string.IsNullOrWhiteSpace(query.PhoneNumber)) customers = customers.Where(c => c.PhoneNumber.Contains(query.PhoneNumber));
                 if (!string.IsNullOrWhiteSpace(query.Email)) customers = customers.Where(c => c.Email == query.Email);
+                if (!string.IsNullOrWhiteSpace(query.IdentificationNumber)) customers = customers.Where(c => c.IdentificationNumber.Contains(query.IdentificationNumber));
 
                 var total = await customers.CountAsync();
                 var pageQuery = customers.Skip(query.Offset).Take(query.Limit).AsNoTracking();
@@ -102,13 +103,16 @@ namespace ServiceLayer.Provider
                 if (customer == null) throw new Exception("Customer not found");
 
                 customer.UpdateCustomer(updatedCustomerDto, username);
+
+                if (await _context.Customers.AnyAsync(u => u.FullName == customer.FullName)) throw new Exception("Customer already exists");
+
                 await _context.SaveChangesAsync();
                 var dto = customer.ToCustomerDto();
                 return dto;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occured while fetching articles");
+                _logger.LogError(ex, "An error occured while updating customer");
                 throw;
             }
         }

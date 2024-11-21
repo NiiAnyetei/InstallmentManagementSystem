@@ -36,6 +36,8 @@ namespace ServiceLayer.Provider
                 var payments = _context.Payments.AsNoTracking();
 
                 if (!string.IsNullOrWhiteSpace(query.Customer)) payments = payments.Where(p => p.Installment.Customer.FullName.Contains(query.Customer));
+                if (query.From.HasValue) payments = payments.Where(p => p.CreatedAt >= query.From);
+                if (query.To.HasValue) payments = payments.Where(p => p.CreatedAt <= query.To);
 
                 var total = await payments.CountAsync();
                 var pageQuery = payments.Include(p => p.Installment).ThenInclude(i => i.Customer).Skip(query.Offset).Take(query.Limit).AsNoTracking();

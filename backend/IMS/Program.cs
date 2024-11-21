@@ -20,6 +20,8 @@ using IMS.Jobs;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using ServiceLayer.External.Hubtel.Provider;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
+using Newtonsoft.Json.Serialization;
+using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -94,6 +96,7 @@ builder.Services.AddSwaggerGen(c =>
 
     c.SupportNonNullableReferenceTypes();
     c.SchemaFilter<SwaggerRequiredSchemaFilter>();
+    c.DescribeAllParametersInCamelCase();
 });
 
 // Add Hangfire services.

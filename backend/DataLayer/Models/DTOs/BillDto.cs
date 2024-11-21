@@ -22,5 +22,5 @@ namespace DataLayer.Models.DTOs
 
     public record BillsDto(List<BillDto> Items, int Count);
 
-    public record BillsQuery(string? Customer, int Limit = 20, int Offset = 0);
+    public record BillsQuery(string? Customer, DateTime? From, DateTime? To, BillStatus? Status, int Limit = 20, int Offset = 0);
 }

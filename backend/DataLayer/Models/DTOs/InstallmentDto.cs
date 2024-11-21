@@ -80,4 +80,4 @@ public record InstallmentDto(
 
 public record InstallmentsDto(List<InstallmentDto> Items, int Count);
 
-public record InstallmentsQuery(string? Customer, int Limit = 20, int Offset = 0);
+public record InstallmentsQuery(string? Item, string? Customer, DateTime? From, DateTime? To, InstallmentStatus? Status, int Limit = 20, int Offset = 0);
