@@ -12,24 +12,24 @@ export class Menu {
           route: '/dashboard',
         },
         {
-          icon: 'assets/icons/heroicons/outline/lock-closed.svg',
+          icon: 'assets/icons/heroicons/outline/users.svg',
           label: 'Customers',
           route: '/customers',
         },
         {
-          icon: 'assets/icons/heroicons/outline/exclamation-triangle.svg',
+          icon: 'assets/icons/heroicons/outline/percent-badge.svg',
           label: 'Installments',
           route: '/installments',
         },
         {
-          icon: 'assets/icons/heroicons/outline/cube.svg',
-          label: 'Payments',
-          route: '/payments',
-        },
-        {
-          icon: 'assets/icons/heroicons/outline/cube.svg',
+          icon: 'assets/icons/heroicons/outline/credit-card.svg',
           label: 'Bills',
           route: '/bills',
+        },
+        {
+          icon: 'assets/icons/heroicons/outline/currency-dollar.svg',
+          label: 'Payments',
+          route: '/payments',
         },
       ],
     },

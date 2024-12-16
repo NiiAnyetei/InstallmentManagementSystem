@@ -50,10 +50,8 @@ export class AddCustomerModalComponent {
     // stop here if form is invalid
     if (this.form.invalid) return;
 
-    let input = this.form.value as NewCustomerDto;
+    const input = {...this.form.value} as NewCustomerDto;
     input.phoneNumber = `+233${input.phoneNumber}`;
-
-    console.log(input);
 
     this.isSubmittingForm = true;
 

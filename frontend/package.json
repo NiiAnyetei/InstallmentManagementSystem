@@ -29,7 +29,7 @@
     "prettier:verify": "prettier --config ./.prettierrc --check \"src/{app,environments}/**/*{.ts,.html,.scss,.json}\"",
     "prettier:staged": "pretty-quick --staged",
     "lint": "ng lint",
-    "update-models": "npx openapi-typescript https://vtcmd9j9-7009.uks1.devtunnels.ms/swagger/v1/swagger.json -o src/app/core/models/models.ts"
+    "update-models": "npx openapi-typescript https://cqh60c1l-7009.uks1.devtunnels.ms/swagger/v1/swagger.json -o src/app/core/models/models.ts"
   },
   "private": true,
   "dependencies": {
@@ -42,11 +42,13 @@
     "@angular/platform-browser": "^18.1.0",
     "@angular/platform-browser-dynamic": "^18.1.0",
     "@angular/router": "^18.1.0",
+    "@ng-select/ng-select": "^13.9.1",
     "@tailwindcss/aspect-ratio": "^0.4.0",
     "@tailwindcss/forms": "^0.5.2",
     "@tailwindcss/typography": "^0.5.4",
     "angular-svg-icon": "^13.0.0",
     "apexcharts": "^3.35.3",
+    "libphonenumber-js": "^1.11.16",
     "ng-apexcharts": "^1.7.1",
     "ngx-pagination": "^6.0.3",
     "ngx-sonner": "^2.0.1",

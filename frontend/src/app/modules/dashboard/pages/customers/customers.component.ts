@@ -7,11 +7,15 @@ import { NgxPaginationModule, PaginationInstance } from 'ngx-pagination';
 import { CommonModule, NgClass } from '@angular/common';
 import { CustomersService } from 'src/app/core/services/customers/customers.service';
 import { components, paths } from 'src/app/core/models/models';
-import { handleRequestError, handleRequestSuccess } from 'src/app/core/utils/custom-functions';
+import { getPageRange, handleRequestError, handleRequestSuccess } from 'src/app/core/utils/custom-functions';
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { CdkMenu, CdkMenuItem, CdkMenuTrigger } from '@angular/cdk/menu';
-import { DialogClosedResult } from 'src/app/core/models/custom.model';
+import { DialogClosedResult, LoadState } from 'src/app/core/models/custom.model';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
+import { EditCustomerModalComponent } from '../../components/customers/modal/edit-customer-modal/edit-customer-modal.component';
+import { InitialsPipe } from "../../../../core/pipe/initials.pipe";
+import { LoadingErrorComponent } from "../../components/shared/states/loading-error/loading-error.component";
+import { LoadingComponent } from "../../components/shared/states/loading/loading.component";
 
 type CustomersQuery = paths['/api/customers']['get']['parameters']['query'];
 type CustomerDto = components['schemas']['CustomerDto'];
@@ -26,13 +30,15 @@ type CustomerDtoVM = CustomerDto & { detailsToggled?: boolean, menuToggled?: boo
     DialogModule,
     NgxPaginationModule,
     CommonModule,
-    NgClass,
-    CdkMenuTrigger, 
-    CdkMenu, 
+    CdkMenuTrigger,
+    CdkMenu,
     CdkMenuItem,
     FormsModule,
-    ReactiveFormsModule
-  ],
+    ReactiveFormsModule,
+    InitialsPipe,
+    LoadingErrorComponent,
+    LoadingComponent
+],
   animations: [
     trigger('openClose', [
       state(
@@ -66,13 +72,21 @@ export class CustomersComponent implements OnInit {
   currentPage: number = 1;
   totalItems: number = 0;
 
-  isLoading: boolean = false;
+  loadState: LoadState = 'Loading';
+  filtersLoadState: LoadState = 'Loaded';
   isFiltersOpen: boolean = false;
   submitted: boolean = false;
   isSubmittingForm: boolean = false;
 
-  searchForm!: FormGroup;
-  filtersForm!: FormGroup;
+  searchForm = this.formBuilder.nonNullable.group({
+    searchTerm: ['']
+  });
+
+  filtersForm = this.formBuilder.nonNullable.group({
+    phoneNumber: ['', [ Validators.pattern("^[0-9]*$"), Validators.minLength(9), Validators.maxLength(9)]],
+    email: ['', [Validators.email]],
+    identificationNumber: [''],
+  });
 
   phoneNumber: string = '';
   email: string = '';
@@ -88,22 +102,27 @@ export class CustomersComponent implements OnInit {
   onPageChange(number: number) {
     this.config.currentPage = number;
     this.currentPage = number;
-    this.getCustomers();
+    this.filterData();
   }
 
   onPageBoundsCorrection(number: number) {
     this.config.currentPage = number;
     this.currentPage = number;
-    this.getCustomers();
+    this.filterData();
+  }
+
+  onItemsPerPageChange(event: any) {
+    const number = Number((event.target as HTMLInputElement).value);
+    this.config.itemsPerPage = number;
+    this.itemsPerPage = number;
+    this.filterData();
   }
 
   constructor(private customersService: CustomersService, private formBuilder: FormBuilder) {}
 
   ngOnInit() {
-    this.initSearchForm();
     this.setupSearchListener();
-    this.initFiltersForm();
-    this.getCustomers();
+    this.getData();
   }
 
   get f() {
@@ -115,31 +134,40 @@ export class CustomersComponent implements OnInit {
   setupSearchListener() {
     this.searchForm.get('searchTerm')?.valueChanges
       .pipe(
-        debounceTime(300),
+        debounceTime(500),
         distinctUntilChanged()
       )
       .subscribe(() => {
         this.currentPage = 1;
-        this.getCustomers();
+        this.filterData();
       });
   }
 
-  initSearchForm(): void {
-    this.searchForm = this.formBuilder.group({
-      searchTerm: ['']
+  getData() {
+    this.isFiltersOpen = false;
+    this.loadState = 'Loading';
+
+    let query: CustomersQuery = {
+      limit: this.itemsPerPage,
+      offset: (this.currentPage - 1) * this.itemsPerPage,
+    }
+
+    this.customersService.getCustomers(query).subscribe({
+      next: (data) => {
+        this.config.totalItems = data.count;
+        this.totalItems = data.count;
+        this.customers.set(data.items);
+        this.loadState = 'Loaded';
+      },
+      error: (error) => {
+        this.loadState = 'Error';
+        handleRequestError(error)},
     });
   }
   
-  initFiltersForm(): void {
-    this.filtersForm = this.formBuilder.group({
-      phoneNumber: ['', [ Validators.pattern("^[0-9]*$"), Validators.minLength(9), Validators.maxLength(9)]],
-      email: ['', [Validators.email]],
-      identificationNumber: [''],
-    });
-  }
-
-  getCustomers() {
-    this.isLoading = true;
+  filterData() {
+    this.isFiltersOpen = false;
+    this.filtersLoadState = 'Loading';
 
     const searchTerm = this.searchForm.get('searchTerm')?.value;
     const phoneNumber = this.filtersForm.get('phoneNumber')?.value;
@@ -155,15 +183,16 @@ export class CustomersComponent implements OnInit {
       offset: (this.currentPage - 1) * this.itemsPerPage,
     }
 
-    this.isFiltersOpen = false;
-
     this.customersService.getCustomers(query).subscribe({
       next: (data) => {
         this.config.totalItems = data.count;
-        // this.totalItems = data.count;
+        this.totalItems = data.count;
         this.customers.set(data.items);
+        this.filtersLoadState = 'Loaded';
       },
-      error: (error) => handleRequestError(error),
+      error: (error) => {
+        this.filtersLoadState = 'Error';
+        handleRequestError(error)},
     });
   }
 
@@ -173,20 +202,33 @@ export class CustomersComponent implements OnInit {
     dialogRef.closed.subscribe((result) => {
       if(result?.isSuccess){
         handleRequestSuccess({message: "Operation successful."});
-        this.getCustomers();
+        this.resetFilters();
+        this.getData();
       }
     });
   }
   
   openEditModal(customer: CustomerDtoVM) {
-    const dialogRef = this.dialog.open<DialogClosedResult>(AddCustomerModalComponent, {
-      data: customer as CustomerDto,
+    let input: CustomerDto = {
+      id: customer.id,
+      firstName: customer.firstName,
+      lastName: customer.lastName,
+      fullName: customer.fullName,
+      phoneNumber: customer.phoneNumber,
+      email: customer.email,
+      identificationNumber: customer.identificationNumber,
+    };
+    input.phoneNumber = input.phoneNumber.slice(4);
+
+    const dialogRef = this.dialog.open<DialogClosedResult>(EditCustomerModalComponent, {
+      data: input,
     });
 
     dialogRef.closed.subscribe((result) => {
       if(result?.isSuccess){
         handleRequestSuccess({message: "Operation successful."});
-        this.getCustomers();
+        this.resetFilters();
+        this.getData();
       }
     });
   }
@@ -223,10 +265,11 @@ export class CustomersComponent implements OnInit {
   }
 
   resetFilters() {
-    this.filtersForm.reset({
-      phoneNumber: '',
-      email: '',
-      identificationNumber: '',
-    });
+    this.filtersForm.reset();
+  }
+
+  getDisplayRange(): { start: number; end: number } {
+      const range = getPageRange(this.totalItems, this.currentPage, this.itemsPerPage);
+      return range;
   }
 }

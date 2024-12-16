@@ -7,6 +7,7 @@ import { Observable } from 'rxjs';
 type CustomersQuery = paths['/api/customers']['get']['parameters']['query']
 type CustomersDto = components['schemas']['CustomersDto'];
 type NewCustomerDto = components['schemas']['NewCustomerDto'];
+type UpdatedCustomerDto = components['schemas']['UpdatedCustomerDto'];
 type CustomerDto = components['schemas']['CustomerDto'];
 
 const controller: string = "customers";
@@ -24,5 +25,9 @@ export class CustomersService {
   
   createCustomer(newCustomerDto: NewCustomerDto): Observable<CustomerDto> {
     return this.http.post<CustomerDto>(`${environment.apiUrl}/${controller}`, newCustomerDto);
+  }
+  
+  updateCustomer(id: string, updatedCustomerDto: UpdatedCustomerDto): Observable<CustomerDto> {
+    return this.http.put<CustomerDto>(`${environment.apiUrl}/${controller}/${id}`, updatedCustomerDto);
   }
 }

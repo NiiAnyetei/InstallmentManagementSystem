@@ -1,0 +1,113 @@
+<div
+    class="absolute left-0 top-0 inset-0 z-[999] grid h-screen w-screen place-items-center bg-black bg-opacity-60 backdrop-blur-none transition-opacity duration-1000">
+    <div
+        class="relative mx-auto flex w-full max-w-[35rem] flex-col rounded-xl bg-background bg-clip-border text-foreground shadow-md">
+        <form [formGroup]="form" (ngSubmit)="onSubmit()">
+            <div class="flex flex-col p-6">
+                <h4 class="text-2xl mb-1 font-semibold text-foreground">
+                    Edit Customer
+                </h4>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-4">
+
+                    <div class="w-full max-w-sm min-w-[200px] mt-4">
+                        <label class="block mb-1 text-sm text-foreground">
+                            First Name
+                        </label>
+                        <input type="text"
+                            class="w-full h-10 bg-transparent placeholder:text-muted-foreground text-foreground text-sm border border-slate-200 rounded px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-400 shadow-sm focus:shadow-md"
+                            placeholder="eg. John"
+                            [ngClass]="{ 'is__invalid-input': submitted && f['firstName'].errors }"
+                            formControlName="firstName" />
+                        <div *ngIf="submitted && f['firstName'].errors" class="is__invalid-error">
+                            <div *ngIf="f['firstName'].errors['required']">Required field</div>
+                        </div>
+                    </div>
+                    <div class="w-full max-w-sm min-w-[200px] mt-4">
+                        <label class="block mb-1 text-sm text-foreground">
+                            Last Name
+                        </label>
+                        <input type="text"
+                            class="w-full h-10 bg-transparent placeholder:text-muted-foreground text-foreground text-sm border border-slate-200 rounded px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-400 shadow-sm focus:shadow-md"
+                            placeholder="eg. Doe" [ngClass]="{ 'is__invalid-input': submitted && f['lastName'].errors }"
+                            formControlName="lastName" />
+                        <div *ngIf="submitted && f['lastName'].errors" class="is__invalid-error">
+                            <div *ngIf="f['lastName'].errors['required']">Required field</div>
+                        </div>
+                    </div>
+                    <div class="w-full max-w-sm min-w-[200px] mt-4">
+                        <label class="block mb-1 text-sm text-foreground">
+                            Phone Number
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none text-sm">
+                                +233
+                            </div>
+                            <input type="tel"
+                                class="w-full h-10 ps-14 bg-transparent placeholder:text-muted-foreground text-foreground text-sm border border-slate-200 rounded px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-400 shadow-sm focus:shadow-md"
+                                placeholder="eg. 240000000"
+                                [ngClass]="{ 'is__invalid-input': submitted && f['phoneNumber'].errors }"
+                                formControlName="phoneNumber" minlength="9" maxlength="9" />
+                        </div>
+                        <div *ngIf="submitted && f['phoneNumber'].errors" class="is__invalid-error">
+                            <div *ngIf="f['phoneNumber'].errors['required']">Required field</div>
+                            <div *ngIf="f['phoneNumber'].errors['minlength']">Phone number must be 9 digits</div>
+                            <div *ngIf="f['phoneNumber'].errors['pattern']">Phone number must be numbers only</div>
+                        </div>
+                    </div>
+                    <div class="w-full max-w-sm min-w-[200px] mt-4">
+                        <label class="block mb-1 text-sm text-foreground">
+                            Email
+                        </label>
+                        <input type="email"
+                            class="w-full h-10 bg-transparent placeholder:text-muted-foreground text-foreground text-sm border border-slate-200 rounded px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-400 shadow-sm focus:shadow-md"
+                            placeholder="eg. johndoe@email.com"
+                            [ngClass]="{ 'is__invalid-input': submitted && f['email'].errors }"
+                            formControlName="email" />
+                        <div *ngIf="submitted && f['email'].errors" class="is__invalid-error">
+                            <div *ngIf="f['email'].errors['required']">Required field</div>
+                            <div *ngIf="f['email'].errors['email']">Email must be a valid email address</div>
+                        </div>
+                    </div>
+                    <div class="w-full max-w-sm min-w-[200px] mt-4">
+                        <label class="block mb-1 text-sm text-foreground">
+                            Identification Number
+                        </label>
+                        <input type="text"
+                            class="w-full h-10 bg-transparent placeholder:text-muted-foreground text-foreground text-sm border border-slate-200 rounded px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-400 shadow-sm focus:shadow-md"
+                            placeholder="eg. GHA-0000000000-0"
+                            [ngClass]="{ 'is__invalid-input': submitted && f['identificationNumber'].errors }"
+                            formControlName="identificationNumber" />
+                        <div *ngIf="submitted && f['identificationNumber'].errors" class="is__invalid-error">
+                            <div *ngIf="f['identificationNumber'].errors['required']">Required field</div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <div class="p-6 pt-0">
+                <div class="flex space-x-2">
+                    <button (click)="dialogRef.close()" [disabled]="isSubmittingForm"
+                        class="w-full mx-auto select-none rounded border border-red-600 py-2 px-4 text-center text-sm font-semibold text-red-600 transition-all duration-1000 hover:bg-red-600 hover:text-white hover:shadow-md hover:shadow-red-600/20 active:bg-red-700 active:text-white active:opacity-[0.85] disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
+                        type="button">
+                        Cancel
+                    </button>
+                    <button [disabled]="isSubmittingForm"
+                        class="group w-full mx-auto select-none rounded border border-blue-600 py-2 px-4 text-center text-sm font-semibold text-blue-600 transition-all duration-1000 hover:bg-blue-600 hover:text-white hover:shadow-md hover:shadow-red-600/20 active:bg-blue-700 active:text-white active:opacity-[0.85] disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
+                        type="submit">
+                        <span *ngIf="!isSubmittingForm">Save</span>
+                        <svg *ngIf="isSubmittingForm" class="transition-all duration-1000 animate-fade-in-down"
+                            class="animate-spin mx-auto h-5 w-5 group-hover:text-white text-blue-600" xmlns="http://www.w3.org/2000/svg"
+                            fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
+                            </circle>
+                            <path class="opacity-75" fill="currentColor"
+                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                            </path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

@@ -4,6 +4,7 @@
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
 @import '@angular/cdk/overlay-prebuilt.css';
+@import "~@ng-select/ng-select/themes/default.theme.css";
 
 @layer base {
   :root {
@@ -228,6 +229,14 @@
   //   // background-color: rgb(208, 208, 208);
   //   @apply bg-foreground
   // }
+
+  .ng-select.custom .ng-select-container  {            
+    @apply w-full h-10 bg-transparent placeholder:text-muted-foreground text-foreground text-sm border border-slate-200 rounded px-3 py-2 transition duration-300 focus:outline-none focus:border-slate-400 hover:border-slate-400 shadow-sm focus:shadow-md;
+  }
+
+  .ng-select.custom.is__invalid-input .ng-select-container {
+    border-color: #e11d48 !important;
+  }
 }
 
 /** Scroll bar **/

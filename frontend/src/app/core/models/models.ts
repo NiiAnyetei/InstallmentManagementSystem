@@ -750,6 +750,77 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/metrics/dashboard": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get dashboard metrics
+         * @description Gets the dashboard metrics
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Returns the dashboard metrics */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["MetricDto"][];
+                    };
+                };
+                /** @description Bad request */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ProblemDetails"];
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Forbidden */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Error */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/payments/{paymentId}": {
         parameters: {
             query?: never;
@@ -1308,10 +1379,11 @@ export interface components {
             amount: number;
             cyclePeriod: components["schemas"]["CyclePeriod"];
             status: components["schemas"]["BillStatus"];
+            isProcessed: boolean;
             installment: components["schemas"]["InstallmentDto"];
         };
         /** @enum {string} */
-        BillStatus: "Pending" | "Paid" | "Overdue";
+        BillStatus: "Pending" | "Paid" | "Overdue" | "Due";
         BillsDto: {
             items: components["schemas"]["BillDto"][];
             /** Format: int32 */
@@ -1380,6 +1452,10 @@ export interface components {
             expiresAt: string;
             username: string;
         };
+        MetricDto: {
+            name: string;
+            value: string;
+        };
         NewCustomerDto: {
             firstName: string;
             lastName: string;
@@ -1414,6 +1490,8 @@ export interface components {
             /** Format: uuid */
             id: string;
             paymentMode: components["schemas"]["PaymentMode"];
+            /** Format: date-time */
+            paymentDate: string;
             /** Format: double */
             amount: number;
             installment: components["schemas"]["InstallmentDto"];
@@ -1447,8 +1525,8 @@ export interface components {
             identificationNumber?: string | null;
         };
         UpdatedInstallmentDto: {
-            customerId?: string | null;
             item?: string | null;
+            itemDetails?: string | null;
             /** Format: double */
             amount?: number | null;
         };

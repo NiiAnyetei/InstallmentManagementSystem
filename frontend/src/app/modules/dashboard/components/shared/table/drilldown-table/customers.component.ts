@@ -2,15 +2,15 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { AngularSvgIconModule } from 'angular-svg-icon';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Dialog, DialogModule } from '@angular/cdk/dialog';
-import { AddCustomerModalComponent } from '../../components/customers/modal/add-customer-modal/add-customer-modal.component';
+import { AddCustomerModalComponent } from '../../../../components/customers/modal/add-customer-modal/add-customer-modal.component';
 import { NgxPaginationModule, PaginationInstance } from 'ngx-pagination';
 import { CommonModule, NgClass } from '@angular/common';
 import { CustomersService } from 'src/app/core/services/customers/customers.service';
 import { components, paths } from 'src/app/core/models/models';
-import { handleRequestError, handleRequestSuccess } from 'src/app/core/utils/custom-functions';
+import { getPageRange, handleRequestError, handleRequestSuccess } from 'src/app/core/utils/custom-functions';
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import { CdkMenu, CdkMenuItem, CdkMenuTrigger } from '@angular/cdk/menu';
-import { DialogClosedResult } from 'src/app/core/models/custom.model';
+import { DialogClosedResult, LoadState } from 'src/app/core/models/custom.model';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 
 type CustomersQuery = paths['/api/customers']['get']['parameters']['query'];
@@ -66,7 +66,7 @@ export class CustomersComponent implements OnInit {
   currentPage: number = 1;
   totalItems: number = 0;
 
-  isLoading: boolean = false;
+  loadState: LoadState = 'Loading';
   isFiltersOpen: boolean = false;
   submitted: boolean = false;
   isSubmittingForm: boolean = false;
@@ -97,6 +97,13 @@ export class CustomersComponent implements OnInit {
     this.getCustomers();
   }
 
+  onItemsPerPageChange(event: any) {
+    const number = Number((event.target as HTMLInputElement).value);
+    this.config.itemsPerPage = number;
+    this.itemsPerPage = number;
+    this.getCustomers();
+  }
+
   constructor(private customersService: CustomersService, private formBuilder: FormBuilder) {}
 
   ngOnInit() {
@@ -115,7 +122,7 @@ export class CustomersComponent implements OnInit {
   setupSearchListener() {
     this.searchForm.get('searchTerm')?.valueChanges
       .pipe(
-        debounceTime(300),
+        debounceTime(500),
         distinctUntilChanged()
       )
       .subscribe(() => {
@@ -139,7 +146,8 @@ export class CustomersComponent implements OnInit {
   }
 
   getCustomers() {
-    this.isLoading = true;
+    this.isFiltersOpen = false;
+    this.loadState = 'Loading';
 
     const searchTerm = this.searchForm.get('searchTerm')?.value;
     const phoneNumber = this.filtersForm.get('phoneNumber')?.value;
@@ -155,15 +163,15 @@ export class CustomersComponent implements OnInit {
       offset: (this.currentPage - 1) * this.itemsPerPage,
     }
 
-    this.isFiltersOpen = false;
-
     this.customersService.getCustomers(query).subscribe({
       next: (data) => {
         this.config.totalItems = data.count;
-        // this.totalItems = data.count;
         this.customers.set(data.items);
+        this.loadState = 'Loaded';
       },
-      error: (error) => handleRequestError(error),
+      error: (error) => {
+        this.loadState = 'Error';
+        handleRequestError(error)},
     });
   }
 
@@ -228,5 +236,10 @@ export class CustomersComponent implements OnInit {
       email: '',
       identificationNumber: '',
     });
+  }
+
+  getDisplayRange(): { start: number; end: number } {
+      const range = getPageRange(this.totalItems, this.currentPage, this.itemsPerPage);
+      return range;
   }
 }

@@ -1,0 +1,288 @@
+<div class="mb-4 flex justify-between">
+    <div class="inline-block">
+        <h3 class="font-semibold text-foreground">Bills</h3>
+    </div>
+    <!-- <div class="inline-block space-x-4">
+        <button (click)="openCreateModal()"
+            class="flex-none rounded-md bg-primary px-4 py-2.5 text-xs font-semibold text-primary-foreground">
+            Add Bill
+        </button>
+    </div> -->
+</div>
+
+@if (loadState == 'Loading') {
+<app-loading></app-loading>
+}
+
+@if (loadState == 'Loaded') {
+<div class="flex min-w-full flex-col rounded-xl border border-muted/20 bg-background p-2">
+    <div class="flex flex-wrap items-center justify-between gap-2 py-3 px-5">
+        <h3 class="text-sm font-medium text-muted-foreground">Showing {{getDisplayRange().end}} of {{p.getTotalItems()}}
+            bills</h3>
+        <div class="flex flex-wrap gap-2">
+            <div class="flex">
+                <label class="relative text-muted-foreground">
+                    <div class="absolute left-2.5 top-2.5">
+                        <svg-icon src="./assets/icons/heroicons/outline/magnifying-glass.svg" [svgClass]="'h-4 w-4'">
+                        </svg-icon>
+                    </div>
+                    <form [formGroup]="searchForm">
+                        <input class="py-2 pl-8 pr-2" placeholder="Search customer" type="search"
+                            formControlName="searchTerm" />
+                    </form>
+                </label>
+            </div>
+
+            <div class="relative">
+                <div (click)="toggleFilters()"
+                    class="inline-flex items-center overflow-hidden rounded-md border border-border bg-background text-muted-foreground cursor-pointer hover:bg-card">
+                    <a class="border-e-0 px-4 py-2 text-xs/none">
+                        Filters
+                    </a>
+
+                    <div class="h-full p-2">
+                        <span class="sr-only">Menu</span>
+                        <svg-icon src="./assets/icons/dropdown.svg" [svgClass]="'h-4 w-4'"> </svg-icon>
+                    </div>
+                </div>
+
+                <!-- Dropdown -->
+                <form [formGroup]="filtersForm" (ngSubmit)="filterData()"
+                    [@openClose]="isFiltersOpen ? 'open' : 'closed'"
+                    class="absolute left-0 min-[425px]:left-auto min-[425px]:!right-0 z-20 mt-2 !w-60 origin-top-right transform rounded-md bg-background shadow-custom ring-1 ring-transparent ring-opacity-5 transition focus:outline-none  py-4 px-4 space-y-4">
+                    <div class="w-full max-w-sm min-w-[200px]">
+                        <label class="block mb-1 text-xs text-muted-foreground">
+                            From
+                        </label>
+                        <input type="date"
+                            class="w-full h-10 bg-transparent placeholder:text-slate-400 text-muted-foreground text-xs border border-border rounded px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-400 shadow-sm focus:shadow-md dark:[color-scheme:dark]"
+                            placeholder="Enter your text" formControlName="from" />
+                    </div>
+
+                    <div class="w-full max-w-sm min-w-[200px]">
+                        <label class="block mb-1 text-xs text-muted-foreground">
+                            To
+                        </label>
+                        <input type="date"
+                            class="w-full h-10 bg-transparent placeholder:text-slate-400 text-muted-foreground text-xs border border-border rounded px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-400 shadow-sm focus:shadow-md dark:[color-scheme:dark]"
+                            placeholder="Enter your text" formControlName="to" />
+                    </div>
+                    <div class="w-full max-w-sm min-w-[200px]">
+                        <label class="block mb-1 text-xs text-muted-foreground">
+                            Status
+                        </label>
+
+                        <select formControlName="status">
+                            <option value="Pending">Pending</option>
+                            <option value="Paid">Paid</option>
+                            <option value="Overdue">Overdue</option>
+                        </select>
+                    </div>
+
+                    <div class="flex justify-between space-x-4">
+                        <button (click)="resetFilters()"
+                            class="flex-none rounded-md bg-muted px-4 py-2.5 text-xs font-semibold text-muted-foreground hover:text-foreground">
+                            Reset
+                        </button>
+                        <button type="submit"
+                            class="flex-none rounded-md bg-primary px-4 py-2.5 text-xs font-semibold text-primary-foreground">
+                            Filter
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <button (click)="getData()" title="Refresh"
+                class="inline-flex items-center overflow-hidden rounded-md border border-border bg-background text-muted-foreground cursor-pointer hover:bg-card">
+                <div class="h-full p-2">
+                    <span class="sr-only">Refresh</span>
+                    <svg-icon src="./assets/icons/heroicons/outline/refresh.svg" [svgClass]="'!h-4 !w-4'"> </svg-icon>
+                </div>
+            </button>
+        </div>
+    </div>
+
+    <div
+        class="overflow-x-auto scrollbar-thumb-rounded scrollbar-track-rounded scrollbar-thin scrollbar-track-transparent scrollbar-thumb-card">
+        @if (loadState == 'Loaded') {
+        <table
+            class="table w-full table-auto border-collapse border-0 text-left align-middle leading-5 text-muted-foreground">
+            <thead class="border border-muted/20 text-xs text-muted-foreground">
+                <ng-container>
+                    <th class="w-[60px]"></th>
+                    <th scope="col">Due Date</th>
+                    <th scope="col">Payment Channel</th>
+                    <th scope="col">Amount</th>
+                    <th scope="col">Cycle Period</th>
+                    <th scope="col">System Processed</th>
+                    <th scope="col">Status</th>
+                </ng-container>
+            </thead>
+            <tbody>
+                @if (filtersLoadState == 'Loading') {
+                <tr>
+                    <td class="py-4 text-center text-sm" colspan="7">Loading ...</td>
+                </tr>
+                }
+
+                @if (filtersLoadState == 'Loaded') {
+                    @for (bill of bills() | paginate: config; track $index) {
+                    <tr class="hover:bg-card/50 transition-all">
+                        <ng-container>
+                            <td class="text-center">
+                                <button (click)="toggleDetails(bill)"
+                                    class="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:bg-card hover:text-foreground animate-attention animation-delay-1000">
+                                    <svg-icon src="./assets/icons/dropdown.svg" [svgClass]="'h-4 w-4'"
+                                        [ngClass]="{'rotate-180': bill.detailsToggled}"
+                                        class="transition-transform"></svg-icon>
+                                </button>
+                            </td>
+                            <td>{{ bill.dueDate | date }}</td>
+                            <td>{{ bill.paymentChannel | paymentChannel }}</td>
+                            <td>GHS{{ bill.amount | number: '.2' }}</td>
+                            <td>{{ bill.cyclePeriod }}</td>
+                            <td>{{ bill.isProcessed | humanizeBool }}</td>
+                            <td>
+                                @switch (bill.status) {
+                                    @case ('Paid') { <app-badges [badgeType]="'success'" [status]="bill.status"></app-badges> }
+                                    @case ('Pending') { <app-badges [badgeType]="'warning'" [status]="bill.status"></app-badges> }
+                                    @case ('Due') { <app-badges [badgeType]="'danger'" [status]="bill.status"></app-badges> }
+                                    @case ('Overdue') { <app-badges [badgeType]="'error'" [status]="bill.status"></app-badges> }
+                                    @default { <app-badges [status]="bill.status"></app-badges> }
+                                }
+                            </td>
+                        </ng-container>
+                    </tr>
+                    <tr [ngClass]="bill.detailsToggled ? '' : 'hidden' ">
+                        <td colspan="7" class="px-6 py-4">
+                            <div class="animate-fade-in space-y-4">
+                                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 text-xs text-muted-foreground">
+                                    <div class="bg-card max-w-64 sm:max-w-full p-4 rounded-lg shadow-sm">
+                                        <h4 class="font-semibold text-foreground mb-2">Installment Details</h4>
+                                        <div class="flex justify-between">
+                                            <span class="text-foreground truncate">Item</span><p>{{bill.installment.item}}</p>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <span class="text-foreground truncate">Amount</span><p>GHS{{bill.installment.amount | number: '.2'}}</p>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <span class="text-foreground truncate">Initial Deposit</span><p>GHS{{bill.installment.initialDeposit | number: '.2'}}</p>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <span class="text-foreground truncate">Start Date</span><p>{{bill.installment.startDate | date}}</p>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <span class="text-foreground truncate">End Date</span><p>{{bill.installment.endDate | date}}</p>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <span class="text-foreground truncate">Status</span><p>{{bill.installment.status}}</p>
+                                        </div>
+                                    </div>
+                                    <div class="bg-card max-w-64 sm:max-w-full p-4 rounded-lg shadow-sm">
+                                        <h4 class="font-semibold text-foreground mb-2">Customer Details</h4>
+                                        <div class="flex justify-between">
+                                            <span class="text-foreground truncate">Name</span><p>{{bill.installment.customer.fullName}}</p>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <span class="text-foreground truncate">Phone</span><p>{{bill.installment.customer.phoneNumber}}</p>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <span class="text-foreground truncate">Email</span><p>{{bill.installment.customer.email}}</p>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <span class="text-foreground truncate">ID</span><p>{{bill.installment.customer.identificationNumber}}</p>
+                                        </div>
+                                    </div>
+                                    <div class="bg-card max-w-64 sm:max-w-full p-4 rounded-lg shadow-sm">
+                                        <h4 class="font-semibold text-foreground mb-2">Item Details</h4>
+                                        <div class="flex justify-between">
+                                            <p>{{bill.installment.itemDetails}}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    } @empty {
+                    <tr>
+                        <td colspan="7" class="px-6 py-4">
+                            <div class="text-center">
+                                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor" aria-hidden="true">
+                                    <path vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+                                </svg>
+                                <h3 class="mt-2 text-sm font-medium text-foreground">No bills</h3>
+                                <p class="mt-1 mx-auto max-w-md text-sm text-muted-foreground">There're no bills for this query. Please try another query or clear your filters.</p>
+                            </div>
+                        </td>
+                    </tr>
+                    }
+                }
+
+                @if (filtersLoadState == 'Error') {
+                <tr>
+                    <td colspan="7">
+                        <app-loading-error (onRetry)="filterData()"></app-loading-error>
+                    </td>
+                </tr>
+                }
+            </tbody>
+        </table>
+        }
+    </div>
+
+    <!-- Footer -->
+    <div class="flex flex-wrap items-center justify-between gap-2 py-3 px-5 text-xs text-muted-foreground">
+        <div class="order-2 flex items-center gap-2 md:order-1">
+            Show
+            <select class="w-16 p-2" (change)="onItemsPerPageChange($event)">
+                <option value="10">10</option>
+                <option value="20">20</option>
+                <option value="30">30</option>
+                <option value="50">50</option>
+            </select>
+            per page
+        </div>
+        <div class="order-1 flex items-center gap-4 md:order-2">
+            <span>{{ getDisplayRange().start }}-{{ getDisplayRange().end }} of {{p.getTotalItems()}}</span>
+
+            <pagination-template #p="paginationApi" [id]="config.id!" (pageChange)="onPageChange($event)"
+                (pageBoundsCorrection)="onPageBoundsCorrection($event)">
+                <div class="inline-flex items-center gap-1">
+                    <button [disabled]="p.isFirstPage()" (click)="p.previous()"
+                        class="inline-flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-md text-sm hover:bg-muted-foreground/10 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <span class="sr-only">Prev Page</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="size-3" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd"
+                                d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
+                                clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                    <ng-container *ngFor="let page of p.pages">
+                        <button [disabled]="p.getCurrent() === page.value"
+                            [class.active-page]="p.getCurrent() === page.value" (click)="p.setCurrent(page.value)"
+                            class="inline-flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-md disabled:cursor-not-allowed active-page hover:bg-muted-foreground/10 text-sm">
+                            {{ page.label }}
+                        </button>
+                    </ng-container>
+                    <button [disabled]="p.isLastPage()" (click)="p.next()"
+                        class="inline-flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-md text-sm hover:bg-muted-foreground/10 disabled:opacity-50 disabled:cursor-not-allowed">
+                        <span class="sr-only">Next Page</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="size-3" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd"
+                                d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                                clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                </div>
+            </pagination-template>
+        </div>
+    </div>
+</div>
+}
+
+@if (loadState == 'Error') {
+<app-loading-error (onRetry)="getData()"></app-loading-error>
+}

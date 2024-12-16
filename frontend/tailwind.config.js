@@ -1,4 +1,5 @@
 // const colors = require('tailwindcss/colors');
+const plugin = require('tailwindcss/plugin')
 
 module.exports = {
   prefix: '',
@@ -9,6 +10,17 @@ module.exports = {
   theme: {
     extend: {
       keyframes: {
+        attention: {
+          '0%, 100%': {
+            transform: 'rotate(0deg)',
+          },
+          '25%': {
+            transform: 'rotate(-30deg)',
+          },
+          '75%': {
+            transform: 'rotate(30deg)',
+          },
+        },
         wiggle: {
           '0%, 100%': { transform: 'rotate(-3deg)' },
           '50%': { transform: 'rotate(3deg)' },
@@ -55,6 +67,7 @@ module.exports = {
         },
       },
       animation: {
+        attention: 'attention 1s ease-in-out',
         wiggle: 'wiggle 1s ease-in-out infinite',
         'fade-in-down': 'fade-in-down 0.3s ease-out',
         'fade-out-down': 'fade-out-down 0.3s ease-out',
@@ -110,5 +123,19 @@ module.exports = {
     require('@tailwindcss/aspect-ratio'),
     require('tailwind-scrollbar'),
     'prettier-plugin-tailwindcss',
+    plugin(({ matchUtilities, theme }) => {
+      matchUtilities(
+        {
+          "animation-delay": (value) => {
+            return {
+              "animation-delay": value,
+            };
+          },
+        },
+        {
+          values: theme("transitionDelay"),
+        }
+      );
+    }),
   ],
 };

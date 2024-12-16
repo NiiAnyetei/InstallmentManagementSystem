@@ -118,77 +118,91 @@
                 </ng-container>
             </thead>
             <tbody>
-                @for (customer of customers() | paginate: config; track $index) {
-                <tr class="hover:bg-card/50 transition-all">
-                    <ng-container>
-                        <td class="text-center">
-                            <button (click)="toggleDetails(customer)"
-                                class="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:bg-card hover:text-foreground">
-                                <svg-icon src="./assets/icons/dropdown.svg" [svgClass]="'h-4 w-4'"
-                                    [ngClass]="{'rotate-180': customer.detailsToggled}"
-                                    class="transition-transform"></svg-icon>
-                            </button>
-                        </td>
-                        <td>
-                            <div class="flex items-center gap-2.5">
-                                <img alt="user avatar" class="h-9 w-9 shrink-0 rounded-full"
-                                    src="https://ui-avatars.com/api/?name={{ customer.fullName }}&background=random" />
-                                <div class="flex flex-col">
-                                    <a class="text-sm font-semibold text-foreground hover:text-primary"> {{
-                                        customer.fullName }} </a>
-                                    <a class="text-xs font-medium text-muted-foreground/70 hover:text-primary">
-                                        {{ customer.email }}
-                                    </a>
+                @if (loadState == 'Loading') {
+                    <tr>
+                        <td class="py-4 text-center text-sm" colspan="7">Loading ...</td>
+                    </tr>
+                } 
+                 
+                @if (loadState == 'Loaded') {
+                    @for (customer of customers() | paginate: config; track $index) {
+                    <tr class="hover:bg-card/50 transition-all">
+                        <ng-container>
+                            <td class="text-center">
+                                <button (click)="toggleDetails(customer)"
+                                    class="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:bg-card hover:text-foreground">
+                                    <svg-icon src="./assets/icons/dropdown.svg" [svgClass]="'h-4 w-4'"
+                                        [ngClass]="{'rotate-180': customer.detailsToggled}"
+                                        class="transition-transform"></svg-icon>
+                                </button>
+                            </td>
+                            <td>
+                                <div class="flex items-center gap-2.5">
+                                    <img alt="user avatar" class="h-9 w-9 shrink-0 rounded-full"
+                                        src="https://ui-avatars.com/api/?name={{ customer.fullName }}&background=random" />
+                                    <div class="flex flex-col">
+                                        <a class="text-sm font-semibold text-foreground hover:text-primary"> {{
+                                            customer.fullName }} </a>
+                                        <a class="text-xs font-medium text-muted-foreground/70 hover:text-primary">
+                                            {{ customer.email }}
+                                        </a>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>{{ customer.phoneNumber }}</td>
+                            <td>
+                                {{ customer.identificationNumber }}
+                            </td>
+                            <td class="text-center relative">
+                                <button [cdkMenuTriggerFor]="menu"
+                                    class="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:bg-card hover:text-foreground">
+                                    <svg-icon src="./assets/icons/heroicons/outline/ellipsis-vertical.svg"
+                                        [svgClass]="'h-4 w-4'"> </svg-icon>
+                                </button>
+                                <!-- Dropdown -->
+                                <ng-template #menu>
+                                    <div class="example-menu" cdkMenu>
+                                      <button (click)="toggleDetails(customer)" class="example-menu-item" cdkMenuItem>Details</button>
+                                      <button (click)="openEditModal(customer)" class="example-menu-item" cdkMenuItem>Edit</button>
+                                    </div>
+                                </ng-template>
+                            </td>
+                        </ng-container>
+                    </tr>
+                    <tr [ngClass]="customer.detailsToggled ? '' : 'hidden' ">
+                        <td colspan="5" class="px-6 py-4">
+                            <div class="animate-fade-in space-y-4">
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-muted-foreground">
+                                    <div class="bg-card p-4 rounded-lg shadow-sm">
+                                        <h4 class="font-semibold text-foreground">Financial Details</h4>
+                                        <p class="text-sm mt-2">Annual Growth: 25%</p>
+                                        <p class="text-sm">Market Share: 15%</p>
+                                    </div>
+                                    <div class="bg-card p-4 rounded-lg shadow-sm">
+                                        <h4 class="font-semibold text-foreground">Contact Information</h4>
+                                        <p class="text-sm mt-2">Phone: (555) 123-4567</p>
+                                        <p class="text-sm">Address: 123 Business Ave</p>
+                                    </div>
+                                    <div class="bg-card p-4 rounded-lg shadow-sm">
+                                        <h4 class="font-semibold text-foreground">Recent Activity</h4>
+                                        <p class="text-sm mt-2">Last Update: 2 days ago</p>
+                                        <p class="text-sm">Status: In Progress</p>
+                                    </div>
                                 </div>
                             </div>
                         </td>
-                        <td>{{ customer.phoneNumber }}</td>
-                        <td>
-                            {{ customer.identificationNumber }}
-                        </td>
-                        <td class="text-center relative">
-                            <button [cdkMenuTriggerFor]="menu"
-                                class="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:bg-card hover:text-foreground">
-                                <svg-icon src="./assets/icons/heroicons/outline/ellipsis-vertical.svg"
-                                    [svgClass]="'h-4 w-4'"> </svg-icon>
-                            </button>
-                            <!-- Dropdown -->
-                            <ng-template #menu>
-                                <div class="example-menu" cdkMenu>
-                                  <button (click)="toggleDetails(customer)" class="example-menu-item" cdkMenuItem>Details</button>
-                                  <button (click)="openEditModal(customer)" class="example-menu-item" cdkMenuItem>Edit</button>
-                                </div>
-                            </ng-template>
-                        </td>
-                    </ng-container>
-                </tr>
-                <tr [ngClass]="customer.detailsToggled ? '' : 'hidden' ">
-                    <td colspan="5" class="px-6 py-4">
-                        <div class="animate-fade-in space-y-4">
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-muted-foreground">
-                                <div class="bg-card p-4 rounded-lg shadow-sm">
-                                    <h4 class="font-semibold text-foreground">Financial Details</h4>
-                                    <p class="text-sm mt-2">Annual Growth: 25%</p>
-                                    <p class="text-sm">Market Share: 15%</p>
-                                </div>
-                                <div class="bg-card p-4 rounded-lg shadow-sm">
-                                    <h4 class="font-semibold text-foreground">Contact Information</h4>
-                                    <p class="text-sm mt-2">Phone: (555) 123-4567</p>
-                                    <p class="text-sm">Address: 123 Business Ave</p>
-                                </div>
-                                <div class="bg-card p-4 rounded-lg shadow-sm">
-                                    <h4 class="font-semibold text-foreground">Recent Activity</h4>
-                                    <p class="text-sm mt-2">Last Update: 2 days ago</p>
-                                    <p class="text-sm">Status: In Progress</p>
-                                </div>
-                            </div>
-                        </div>
-                    </td>
-                </tr>
-                } @empty {
-                <tr>
-                    <td class="py-4 text-center text-sm" colspan="7">No data</td>
-                </tr>
+                    </tr>
+                    } @empty {
+                    <tr>
+                        <td class="py-4 text-center text-sm" colspan="7">No data</td>
+                    </tr>
+                    }
+                }
+
+                @if (loadState == 'Error') {
+                    <tr>
+                        <td class="py-4 text-center text-sm" colspan="7">Something went wrong. Please try again</td>
+                    </tr>
                 }
             </tbody>
         </table>
@@ -196,19 +210,19 @@
 
     <!-- Footer -->
     <div class="flex flex-wrap items-center justify-between gap-2 py-3 px-5 text-xs text-muted-foreground">
-        <div>&nbsp;</div>
-        <!-- <div class="order-2 flex items-center gap-2 md:order-1">
+        <!-- <div>&nbsp;</div> -->
+        <div class="order-2 flex items-center gap-2 md:order-1">
             Show
-            <select class="w-16 p-2" [(ngModel)]="itemsPerPage" (change)="getCustomers()">
+            <select class="w-16 p-2" (change)="onItemsPerPageChange($event)">
                 <option value="10">10</option>
                 <option value="20">20</option>
                 <option value="30">30</option>
                 <option value="50">50</option>
             </select>
             per page
-        </div> -->
+        </div>
         <div class="order-1 flex items-center gap-4 md:order-2">
-            <span>1-10 of 100</span>
+            <span>{{ getDisplayRange().start }}-{{ getDisplayRange().end }} of {{p.getTotalItems()}}</span>
 
             <pagination-template #p="paginationApi" [id]="config.id!" (pageChange)="onPageChange($event)" (pageBoundsCorrection)="onPageBoundsCorrection($event)">
                 <div class="inline-flex items-center gap-1">
