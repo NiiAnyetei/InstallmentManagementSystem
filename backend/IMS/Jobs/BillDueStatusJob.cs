@@ -23,7 +23,7 @@ namespace IMS.Jobs
 
         public string JobName => nameof(BillDueStatusJob).Humanize();
 
-        public string CronExpression => Cron.Daily(9);
+        public string CronExpression => Cron.Daily();
 
         public async Task ExecuteAsync()
         {
