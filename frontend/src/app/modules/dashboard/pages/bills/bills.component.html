@@ -73,7 +73,9 @@
                         </label>
 
                         <select formControlName="status">
+                            <option value="">All</option>
                             <option value="Pending">Pending</option>
+                            <option value="Due">Due</option>
                             <option value="Paid">Paid</option>
                             <option value="Overdue">Overdue</option>
                         </select>
@@ -111,6 +113,7 @@
                 <ng-container>
                     <th class="w-[60px]"></th>
                     <th scope="col">Due Date</th>
+                    <th scope="col">Customer</th>
                     <th scope="col">Payment Channel</th>
                     <th scope="col">Amount</th>
                     <th scope="col">Cycle Period</th>
@@ -121,7 +124,7 @@
             <tbody>
                 @if (filtersLoadState == 'Loading') {
                 <tr>
-                    <td class="py-4 text-center text-sm" colspan="7">Loading ...</td>
+                    <td class="py-4 text-center text-sm" colspan="8">Loading ...</td>
                 </tr>
                 }
 
@@ -138,6 +141,7 @@
                                 </button>
                             </td>
                             <td>{{ bill.dueDate | date }}</td>
+                            <td>{{ bill.installment.customer.fullName }}</td>
                             <td>{{ bill.paymentChannel | paymentChannel }}</td>
                             <td>GHS{{ bill.amount | number: '.2' }}</td>
                             <td>{{ bill.cyclePeriod }}</td>
@@ -154,7 +158,7 @@
                         </ng-container>
                     </tr>
                     <tr [ngClass]="bill.detailsToggled ? '' : 'hidden' ">
-                        <td colspan="7" class="px-6 py-4">
+                        <td colspan="8" class="px-6 py-4">
                             <div class="animate-fade-in space-y-4">
                                 <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 text-xs text-muted-foreground">
                                     <div class="bg-card max-w-64 sm:max-w-full p-4 rounded-lg shadow-sm">
@@ -205,7 +209,7 @@
                     </tr>
                     } @empty {
                     <tr>
-                        <td colspan="7" class="px-6 py-4">
+                        <td colspan="8" class="px-6 py-4">
                             <div class="text-center">
                                 <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24"
                                     stroke="currentColor" aria-hidden="true">
@@ -223,7 +227,7 @@
 
                 @if (filtersLoadState == 'Error') {
                 <tr>
-                    <td colspan="7">
+                    <td colspan="8">
                         <app-loading-error (onRetry)="filterData()"></app-loading-error>
                     </td>
                 </tr>

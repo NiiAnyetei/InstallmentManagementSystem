@@ -100,6 +100,7 @@
                 <ng-container>
                     <th class="w-[60px]"></th>
                     <th scope="col">Payment Date</th>
+                    <th scope="col">Customer</th>
                     <th scope="col">Payment Mode</th>
                     <th scope="col">Amount</th>
                 </ng-container>
@@ -107,7 +108,7 @@
             <tbody>
                 @if (filtersLoadState == 'Loading') {
                 <tr>
-                    <td class="py-4 text-center text-sm" colspan="4">Loading ...</td>
+                    <td class="py-4 text-center text-sm" colspan="5">Loading ...</td>
                 </tr>
                 }
 
@@ -124,12 +125,13 @@
                                 </button>
                             </td>
                             <td>{{ payment.paymentDate | date }}</td>
+                            <td>{{ payment.installment.customer.fullName }}</td>
                             <td>{{ payment.paymentMode }}</td>
                             <td>GHS{{ payment.amount | number: '.2' }}</td>
                         </ng-container>
                     </tr>
                     <tr [ngClass]="payment.detailsToggled ? '' : 'hidden' ">
-                        <td colspan="4" class="px-6 py-4">
+                        <td colspan="5" class="px-6 py-4">
                             <div class="animate-fade-in space-y-4">
                                 <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 text-xs text-muted-foreground">
                                     <div class="bg-card max-w-64 sm:max-w-full p-4 rounded-lg shadow-sm">
@@ -180,7 +182,7 @@
                     </tr>
                     } @empty {
                     <tr>
-                        <td colspan="4" class="px-6 py-4">
+                        <td colspan="5" class="px-6 py-4">
                             <div class="text-center">
                                 <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24"
                                     stroke="currentColor" aria-hidden="true">
@@ -198,7 +200,7 @@
 
                 @if (filtersLoadState == 'Error') {
                 <tr>
-                    <td colspan="4">
+                    <td colspan="5">
                         <app-loading-error (onRetry)="filterData()"></app-loading-error>
                     </td>
                 </tr>

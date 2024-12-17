@@ -152,6 +152,7 @@ dialog = inject(Dialog);
         this.totalItems = data.count;
         this.payments.set(data.items);
         this.loadState = 'Loaded';
+        this.filtersLoadState = 'Loaded';
       },
       error: (error) => {
         this.loadState = 'Error';

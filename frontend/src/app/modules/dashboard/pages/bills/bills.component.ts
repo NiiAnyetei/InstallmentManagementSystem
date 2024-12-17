@@ -88,7 +88,7 @@ export class BillsComponent {
     item: '',
     from: '',
     to: '',
-    status: this.billStatus,
+    status: '',
   });
 
   phoneNumber: string = '';
@@ -161,6 +161,7 @@ export class BillsComponent {
         this.totalItems = data.count;
         this.bills.set(data.items);
         this.loadState = 'Loaded';
+        this.filtersLoadState = 'Loaded';
       },
       error: (error) => {
         this.loadState = 'Error';
@@ -175,7 +176,7 @@ export class BillsComponent {
     const searchTerm = this.searchForm.get('searchTerm')?.value;
     const from = this.filtersForm.get('from')?.value;
     const to = this.filtersForm.get('to')?.value;
-    const status = this.filtersForm.get('status')?.value;
+    const status = this.filtersForm.get('status')?.value as BillStatus;
 
     let query: BillsQuery = {
       customer: searchTerm,

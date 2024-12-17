@@ -158,6 +158,7 @@ export class CustomersComponent implements OnInit {
         this.totalItems = data.count;
         this.customers.set(data.items);
         this.loadState = 'Loaded';
+        this.filtersLoadState = 'Loaded';
       },
       error: (error) => {
         this.loadState = 'Error';
