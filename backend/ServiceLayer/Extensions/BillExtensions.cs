@@ -30,6 +30,7 @@ namespace ServiceLayer.Extensions
                 bill.Amount,
                 bill.CyclePeriod,
                 bill.Status,
+                bill.IsProcessed,
                 bill.Installment.ToInstallmentDto()
             );
         }

@@ -104,7 +104,7 @@ namespace ServiceLayer.Provider
                 if (query.Status.HasValue) installments = installments.Where(i => i.Status == query.Status);
 
                 var total = await installments.CountAsync();
-                var pageQuery = installments.Skip(query.Offset).Take(query.Limit).AsNoTracking();
+                var pageQuery = installments.OrderByDescending(i => i.CreatedAt).Skip(query.Offset).Take(query.Limit).AsNoTracking();
                 var page = await pageQuery.Select(i => new InstallmentDto(i.Id, i.Customer.ToCustomerDto(), i.Item, i.ItemDetails, i.Amount, i.InitialDeposit, i.TotalAmountDue, i.CyclePeriod, i.CycleNumber, i.PaymentChannel, i.StartDate, i.EndDate, i.CreatedBy, i.Status)).ToListAsync();
 
                 return new InstallmentsDto(page, total);

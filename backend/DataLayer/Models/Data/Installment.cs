@@ -44,7 +44,7 @@ namespace DataLayer.Models.Data
 
         public void UpdateInstallment(UpdatedInstallmentDto update, string username)
         {
-            if (!string.IsNullOrWhiteSpace(update.CustomerId)) CustomerId = Guid.Parse(update.CustomerId);
+            //if (!string.IsNullOrWhiteSpace(update.CustomerId)) CustomerId = Guid.Parse(update.CustomerId);
             if (!string.IsNullOrWhiteSpace(update.Item)) Item = update.Item;
             if (update.Amount > 0) TotalAmountDue = (decimal)(Amount - update.Amount);
             if (update.Amount > 0) Amount = (decimal)update.Amount;

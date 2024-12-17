@@ -68,7 +68,7 @@ namespace ServiceLayer.Provider
             catch (Exception ex)
             {
                 transaction.Rollback();
-                _logger.LogError(ex, "An error occured while callback");
+                _logger.LogError(ex, "An error occured while processing callback");
             }
         }
     }

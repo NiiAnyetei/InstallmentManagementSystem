@@ -15,5 +15,7 @@ namespace ServiceLayer.Service
         Task<BillsDto> GetAllAsync(BillsQuery query);
         Task<BillDto> UpdateAsync(Guid billId, UpdatedBillDto bill, string username);
         Task<List<Bill>> GetDueBillsAsync();
+        Task MarkBillsDueAsync();
+        Task MarkBillsOverDueAsync();
     }
 }

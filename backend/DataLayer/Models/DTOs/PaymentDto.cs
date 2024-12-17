@@ -18,7 +18,7 @@ public record UpdatedPaymentDto(string? InstallmentId, PaymentMode? PaymentType,
     }
 };
 
-public record PaymentDto(Guid Id, PaymentMode PaymentMode, decimal Amount, InstallmentDto Installment);
+public record PaymentDto(Guid Id, PaymentMode PaymentMode, DateTime PaymentDate, decimal Amount, InstallmentDto Installment);
 
 public record PaymentsDto(List<PaymentDto> Items, int Count);
 

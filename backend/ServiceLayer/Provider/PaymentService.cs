@@ -40,8 +40,8 @@ namespace ServiceLayer.Provider
                 if (query.To.HasValue) payments = payments.Where(p => p.CreatedAt <= query.To);
 
                 var total = await payments.CountAsync();
-                var pageQuery = payments.Include(p => p.Installment).ThenInclude(i => i.Customer).Skip(query.Offset).Take(query.Limit).AsNoTracking();
-                var page = await pageQuery.Select(p => new PaymentDto(p.Id, p.PaymentMode, p.Amount, p.Installment.ToInstallmentDto())).ToListAsync();
+                var pageQuery = payments.OrderByDescending(p => p.CreatedAt).Include(p => p.Installment).ThenInclude(i => i.Customer).Skip(query.Offset).Take(query.Limit).AsNoTracking();
+                var page = await pageQuery.Select(p => new PaymentDto(p.Id, p.PaymentMode, p.CreatedAt, p.Amount, p.Installment.ToInstallmentDto())).ToListAsync();
 
                 return new PaymentsDto(page, total);
             }

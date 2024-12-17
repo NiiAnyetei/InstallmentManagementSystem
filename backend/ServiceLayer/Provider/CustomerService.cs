@@ -75,7 +75,7 @@ namespace ServiceLayer.Provider
                 if (!string.IsNullOrWhiteSpace(query.IdentificationNumber)) customers = customers.Where(c => c.IdentificationNumber.Contains(query.IdentificationNumber));
 
                 var total = await customers.CountAsync();
-                var pageQuery = customers.Skip(query.Offset).Take(query.Limit).AsNoTracking();
+                var pageQuery = customers.OrderByDescending(c => c.CreatedAt).Skip(query.Offset).Take(query.Limit).AsNoTracking();
                 var page = await pageQuery.ToListAsync();
 
                 var customersDto = new List<CustomerDto>();
@@ -103,8 +103,6 @@ namespace ServiceLayer.Provider
                 if (customer == null) throw new Exception("Customer not found");
 
                 customer.UpdateCustomer(updatedCustomerDto, username);
-
-                if (await _context.Customers.AnyAsync(u => u.FullName == customer.FullName)) throw new Exception("Customer already exists");
 
                 await _context.SaveChangesAsync();
                 var dto = customer.ToCustomerDto();

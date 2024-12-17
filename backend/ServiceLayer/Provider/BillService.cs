@@ -75,11 +75,11 @@ namespace ServiceLayer.Provider
                 if (!string.IsNullOrWhiteSpace(query.Customer)) bills = bills.Where(b => b.Installment.Customer.FullName.Contains(query.Customer));
                 if (query.From.HasValue) bills = bills.Where(p => p.DueDate >= query.From);
                 if (query.To.HasValue) bills = bills.Where(p => p.DueDate <= query.To);
-                if (query.Status.HasValue) bills = bills.Where(p => p.Status <= query.Status);
+                if (query.Status.HasValue) bills = bills.Where(p => p.Status == query.Status);
 
                 var total = await bills.CountAsync();
-                var pageQuery = bills.Include(b => b.Installment).ThenInclude(i => i.Customer).Skip(query.Offset).Take(query.Limit).AsNoTracking();
-                var page = await pageQuery.Select(b => new BillDto(b.Id, b.DueDate, b.PaymentChannel, b.Amount, b.CyclePeriod, b.Status, b.Installment.ToInstallmentDto())).ToListAsync();
+                var pageQuery = bills.OrderBy(b => b.DueDate).Include(b => b.Installment).ThenInclude(i => i.Customer).Skip(query.Offset).Take(query.Limit).AsNoTracking();
+                var page = await pageQuery.Select(b => new BillDto(b.Id, b.DueDate, b.PaymentChannel, b.Amount, b.CyclePeriod, b.Status, b.IsProcessed, b.Installment.ToInstallmentDto())).ToListAsync();
 
                 return new BillsDto(page, total);
             }
@@ -123,6 +123,58 @@ namespace ServiceLayer.Provider
             catch (Exception ex)
             {
                 _logger.LogError(ex, "An error occured while fetching due bills");
+                throw;
+            }
+        }
+
+        public async Task MarkBillsDueAsync()
+        {
+            var transaction = await _context.Database.BeginTransactionAsync();
+
+            try
+            {
+                var bills = await _context.Bills.Where(b => b.DueDate.Date == DateTime.UtcNow.Date && b.IsProcessed == false && (b.Status != BillStatus.Paid || b.Status != BillStatus.Overdue)).ToListAsync();
+                var dueBills= new List<Bill>();
+
+                foreach (var bill in bills)
+                {
+                    bill.Status = BillStatus.Due;
+                    dueBills.Add(bill);
+                }
+
+                await _context.BulkUpdateAsync(dueBills);
+                transaction.Commit();
+            }
+            catch (Exception ex)
+            {
+                transaction.Rollback();
+                _logger.LogError(ex, "An error occured while marking bill due");
+                throw;
+            }
+        }
+        
+        public async Task MarkBillsOverDueAsync()
+        {
+            var transaction = await _context.Database.BeginTransactionAsync();
+
+            try
+            {
+                var bills = await _context.Bills.Where(b => b.DueDate.Date < DateTime.UtcNow.Date && b.IsProcessed == false && (b.Status != BillStatus.Paid || b.Status != BillStatus.Overdue)).ToListAsync();
+                var dueBills= new List<Bill>();
+
+                foreach (var bill in bills)
+                {
+                    bill.Status = BillStatus.Overdue;
+                    dueBills.Add(bill);
+                }
+
+                await _context.BulkUpdateAsync(dueBills);
+                transaction.Commit();
+            }
+            catch (Exception ex)
+            {
+                transaction.Rollback();
+                _logger.LogError(ex, "An error occured while marking bill overdue");
                 throw;
             }
         }

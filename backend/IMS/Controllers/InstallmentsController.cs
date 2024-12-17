@@ -153,7 +153,7 @@ namespace IMS.Controllers
         [ProducesResponseType<InstallmentDto>(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType<Error>(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> UpdateArticle(Guid installmentId, [FromBody] UpdatedInstallmentDto updatedInstallmentDto)
+        public async Task<IActionResult> UpdateInstallment(Guid installmentId, [FromBody] UpdatedInstallmentDto updatedInstallmentDto)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
 

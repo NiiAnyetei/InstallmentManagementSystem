@@ -18,7 +18,7 @@ namespace DataLayer.Models.DTOs
         }
     };
 
-    public record BillDto(Guid Id, DateTimeOffset DueDate, string PaymentChannel, decimal Amount, CyclePeriod CyclePeriod, BillStatus Status, InstallmentDto Installment);
+    public record BillDto(Guid Id, DateTimeOffset DueDate, string PaymentChannel, decimal Amount, CyclePeriod CyclePeriod, BillStatus Status, bool IsProcessed, InstallmentDto Installment);
 
     public record BillsDto(List<BillDto> Items, int Count);
 

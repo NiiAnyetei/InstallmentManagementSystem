@@ -1,4 +1,6 @@
-﻿using Hangfire;
+﻿using DataLayer.Context;
+using Hangfire;
+using Microsoft.EntityFrameworkCore;
 using Serilog;
 using ServiceLayer.Service;
 using System.Text.RegularExpressions;
@@ -31,6 +33,23 @@ namespace IMS.Extensions
             catch (Exception ex)
             {
                 Log.Error(ex, "Unable to register jobs");
+            }
+
+            return app;
+        }
+        
+        public static IApplicationBuilder ApplyMigrations(this IApplicationBuilder app)
+        {
+            var scope = app.ApplicationServices.CreateScope();
+
+            try
+            {
+                var db = scope.ServiceProvider.GetRequiredService<IMSDbContext>();
+                db.Database.Migrate();
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "Unable to migrate database");
             }
 
             return app;

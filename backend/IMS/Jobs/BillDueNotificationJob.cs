@@ -31,7 +31,7 @@ namespace IMS.Jobs
 
         public string JobName => nameof(BillDueNotificationJob).Humanize();
 
-        public string CronExpression => Cron.Daily(7);
+        public string CronExpression => "0 7,13 * * *";
 
         public async Task ExecuteAsync()
         {

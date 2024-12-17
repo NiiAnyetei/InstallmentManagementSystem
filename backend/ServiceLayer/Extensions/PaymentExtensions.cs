@@ -16,6 +16,7 @@ namespace ServiceLayer.Extensions
             return new PaymentDto(
                 payment.Id,
                 payment.PaymentMode,
+                payment.CreatedAt,
                 payment.Amount,
                 payment.Installment.ToInstallmentDto()
             );

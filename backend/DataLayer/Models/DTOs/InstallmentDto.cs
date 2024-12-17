@@ -48,14 +48,14 @@ public record NewInstallmentDto(
     }
 }
 
-public record UpdatedInstallmentDto(string? CustomerId, string? Item, decimal? Amount) : IValidatableObject
+public record UpdatedInstallmentDto(string? Item, string? ItemDetails, decimal? Amount) : IValidatableObject
 {
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
-        if (string.IsNullOrWhiteSpace(CustomerId) && string.IsNullOrWhiteSpace(Item) && Amount is null or 0)
+        if (string.IsNullOrWhiteSpace(Item) && string.IsNullOrWhiteSpace(ItemDetails) && Amount is null or 0)
         {
             yield return new ValidationResult(
-                $"At least one of the fields: {nameof(Item)}, {nameof(Amount)} must be filled"
+                $"At least one of the fields: {nameof(Item)}, {nameof(ItemDetails)}, {nameof(Amount)} must be filled"
             );
         }
     }

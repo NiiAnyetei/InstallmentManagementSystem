@@ -114,7 +114,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowSpecificOrigin",
         builder =>
         {
-            builder.WithOrigins("http://localhost:4200")
+            builder.WithOrigins(["http://localhost:4200", "https://xqq9hq1n-8000.uks1.devtunnels.ms"])
                    .AllowAnyMethod()
                    .AllowAnyHeader();
         });
@@ -131,6 +131,7 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ICustomerService, CustomerService>();
 builder.Services.AddScoped<IInstallmentService, InstallmentService>();
 builder.Services.AddScoped<IPaystackService, PaystackService>();
+builder.Services.AddScoped<IMetricService, MetricService>();
 builder.Services.AddScoped<IWebhookProcessor, WebhookProcessor>();
 builder.Services.AddScoped<IBillService, BillService>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
@@ -140,11 +141,15 @@ builder.Services.TryAddEnumerable(new ServiceDescriptor[]
 {
     ServiceDescriptor.Scoped<IRecurringJob, BillDueNotificationJob>(),
     ServiceDescriptor.Scoped<IRecurringJob, BillCollectionJob>(),
+    ServiceDescriptor.Scoped<IRecurringJob, BillDueStatusJob>(),
+    ServiceDescriptor.Scoped<IRecurringJob, BillOverDueStatusJob>(),
     ServiceDescriptor.Scoped<IRecurringJob, InstallmentCompletionJob>(),
 });
 
 builder.Services.AddScoped<BillDueNotificationJob>();
 builder.Services.AddScoped<BillCollectionJob>();
+builder.Services.AddScoped<BillDueStatusJob>();
+builder.Services.AddScoped<BillOverDueStatusJob>();
 builder.Services.AddScoped<InstallmentCompletionJob>();
 
 var app = builder.Build();
@@ -155,6 +160,8 @@ var app = builder.Build();
 }
 
 // Configure the HTTP request pipeline.
+app.ApplyMigrations();
+
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
