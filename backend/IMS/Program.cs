@@ -22,6 +22,7 @@ using ServiceLayer.External.Hubtel.Provider;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Newtonsoft.Json.Serialization;
 using System.Text.Json;
+using HangfireBasicAuthenticationFilter;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,6 +31,10 @@ var builder = WebApplication.CreateBuilder(args);
 //Jwt configuration starts here
 var jwtIssuer = builder.Configuration.GetSection("Jwt:Issuer").Get<string>();
 var jwtKey = builder.Configuration.GetSection("Jwt:Key").Get<string>();
+
+//Basic auth configuration starts here
+var User = builder.Configuration.GetSection("BasicAuth:User").Get<string>();
+var Pass = builder.Configuration.GetSection("BasicAuth:Pass").Get<string>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
  .AddJwtBearer(options =>
@@ -162,6 +167,8 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 app.ApplyMigrations();
 
+app.UseMiddleware<SwaggerBasicAuthMiddleware>();
+
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
@@ -183,6 +190,16 @@ app.MapControllers();
 
 app.RegisterRecurringJobs();
 
-app.UseHangfireDashboard();
+app.UseHangfireDashboard("/hangfire", new DashboardOptions
+{
+    Authorization = new[]
+    {
+        new HangfireCustomBasicAuthenticationFilter
+        {
+            User = User,
+            Pass = Pass
+        }
+    }
+});
 
 app.Run();
