@@ -46,6 +46,11 @@
                 "glob": "web.config",
                 "input": "./",
                 "output": "/"
+              },
+              {
+                "glob": "netlify.toml",
+                "input": "./",
+                "output": "/"
               }
             ],
             "styles": [
