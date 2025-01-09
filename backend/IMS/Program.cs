@@ -119,7 +119,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowSpecificOrigin",
         builder =>
         {
-            builder.WithOrigins(["http://localhost:4200", "https://xqq9hq1n-8000.uks1.devtunnels.ms"])
+            builder.WithOrigins(["http://localhost:4200", "https://xqq9hq1n-8000.uks1.devtunnels.ms", "https://tubular-druid-c75ec6.netlify.app"])
                    .AllowAnyMethod()
                    .AllowAnyHeader();
         });
