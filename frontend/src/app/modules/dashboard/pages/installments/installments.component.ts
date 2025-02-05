@@ -11,17 +11,20 @@ import { components, paths } from 'src/app/core/models/models';
 import { getPageRange, handleRequestError, handleRequestSuccess } from 'src/app/core/utils/custom-functions';
 import { EditCustomerModalComponent } from '../../components/customers/modal/edit-customer-modal/edit-customer-modal.component';
 import { InstallmentsService } from 'src/app/core/services/installments/installments.service';
-import { LoadingComponent } from "../../components/shared/states/loading/loading.component";
-import { LoadingErrorComponent } from "../../components/shared/states/loading-error/loading-error.component";
+import { LoadingComponent } from '../../components/shared/states/loading/loading.component';
+import { LoadingErrorComponent } from '../../components/shared/states/loading-error/loading-error.component';
 import { AddInstallmentModalComponent } from '../../components/installments/modal/add-installment-modal/add-installment-modal.component';
-import { BadgesComponent } from "../../components/shared/badges/badges.component";
+import { BadgesComponent } from '../../components/shared/badges/badges.component';
 import { PaymentChannelPipe } from 'src/app/core/pipe/payment-channel.pipe';
 import { CyclePeriodPipe } from 'src/app/core/pipe/cycle-period.pipe';
+import { CdkMenuTrigger, CdkMenu, CdkMenuItem } from '@angular/cdk/menu';
+import { EditInstallmentModalComponent } from '../../components/installments/modal/edit-installment-modal/edit-installment-modal.component';
+import { ConfirmDeleteInstallmentComponent } from '../../components/installments/modal/confirm-delete-installment/confirm-delete-installment.component';
 
 type InstallmentsQuery = paths['/api/installments']['get']['parameters']['query'];
 type InstallmentDto = components['schemas']['InstallmentDto'];
 type InstallmentStatus = components['schemas']['InstallmentStatus'];
-type InstallmentDtoVM = InstallmentDto & { detailsToggled?: boolean, menuToggled?: boolean };
+type InstallmentDtoVM = InstallmentDto & { detailsToggled?: boolean; menuToggled?: boolean };
 
 @Component({
   selector: 'app-installments',
@@ -38,8 +41,11 @@ type InstallmentDtoVM = InstallmentDto & { detailsToggled?: boolean, menuToggled
     LoadingErrorComponent,
     BadgesComponent,
     PaymentChannelPipe,
-    CyclePeriodPipe
-],
+    CyclePeriodPipe,
+    CdkMenuTrigger,
+    CdkMenu,
+    CdkMenuItem,
+  ],
   animations: [
     trigger('openClose', [
       state(
@@ -63,7 +69,7 @@ type InstallmentDtoVM = InstallmentDto & { detailsToggled?: boolean, menuToggled
     ]),
   ],
   templateUrl: './installments.component.html',
-  styleUrl: './installments.component.scss'
+  styleUrl: './installments.component.scss',
 })
 export class InstallmentsComponent {
   dialog = inject(Dialog);
@@ -81,9 +87,9 @@ export class InstallmentsComponent {
   isSubmittingForm: boolean = false;
 
   searchForm = this.formBuilder.nonNullable.group({
-    searchTerm: ''
+    searchTerm: '',
   });
-  
+
   filtersForm = this.formBuilder.nonNullable.group({
     item: '',
     from: '',
@@ -99,7 +105,7 @@ export class InstallmentsComponent {
     id: 'installments',
     itemsPerPage: this.itemsPerPage,
     currentPage: this.currentPage,
-    totalItems: this.totalItems
+    totalItems: this.totalItems,
   };
 
   onPageChange(number: number) {
@@ -135,11 +141,9 @@ export class InstallmentsComponent {
   ngOnDestroy(): void {}
 
   setupSearchListener() {
-    this.searchForm.get('searchTerm')?.valueChanges
-      .pipe(
-        debounceTime(500),
-        distinctUntilChanged()
-      )
+    this.searchForm
+      .get('searchTerm')
+      ?.valueChanges.pipe(debounceTime(500), distinctUntilChanged())
       .subscribe(() => {
         this.currentPage = 1;
         this.filterData();
@@ -153,7 +157,7 @@ export class InstallmentsComponent {
     let query: InstallmentsQuery = {
       limit: this.itemsPerPage,
       offset: (this.currentPage - 1) * this.itemsPerPage,
-    }
+    };
 
     this.installmentsService.getInstallments(query).subscribe({
       next: (data) => {
@@ -165,10 +169,11 @@ export class InstallmentsComponent {
       },
       error: (error) => {
         this.loadState = 'Error';
-        handleRequestError(error)},
+        handleRequestError(error);
+      },
     });
   }
-  
+
   filterData() {
     this.isFiltersOpen = false;
     this.filtersLoadState = 'Loading';
@@ -187,7 +192,7 @@ export class InstallmentsComponent {
       status: status,
       limit: this.itemsPerPage,
       offset: (this.currentPage - 1) * this.itemsPerPage,
-    }
+    };
 
     this.installmentsService.getInstallments(query).subscribe({
       next: (data) => {
@@ -198,7 +203,8 @@ export class InstallmentsComponent {
       },
       error: (error) => {
         this.filtersLoadState = 'Error';
-        handleRequestError(error)},
+        handleRequestError(error);
+      },
     });
   }
 
@@ -206,24 +212,40 @@ export class InstallmentsComponent {
     const dialogRef = this.dialog.open<DialogClosedResult>(AddInstallmentModalComponent);
 
     dialogRef.closed.subscribe((result) => {
-      if(result?.isSuccess){
-        handleRequestSuccess({message: "Operation successful."});
+      if (result?.isSuccess) {
+        handleRequestSuccess({ message: 'Operation successful.' });
+        this.resetFilters();
+        this.getData();
+      }
+    });
+  }
+
+  openEditModal(installment: InstallmentDtoVM) {
+    let input = installment as InstallmentDto;
+
+    const dialogRef = this.dialog.open<DialogClosedResult>(EditInstallmentModalComponent, {
+      data: input,
+    });
+
+    dialogRef.closed.subscribe((result) => {
+      if (result?.isSuccess) {
+        handleRequestSuccess({ message: 'Operation successful.' });
         this.resetFilters();
         this.getData();
       }
     });
   }
   
-  openEditModal(installment: InstallmentDtoVM) {
+  openConfirmModal(installment: InstallmentDtoVM) {
     let input = installment as InstallmentDto;
 
-    const dialogRef = this.dialog.open<DialogClosedResult>(EditCustomerModalComponent, {
+    const dialogRef = this.dialog.open<DialogClosedResult>(ConfirmDeleteInstallmentComponent, {
       data: input,
     });
 
     dialogRef.closed.subscribe((result) => {
-      if(result?.isSuccess){
-        handleRequestSuccess({message: "Operation successful."});
+      if (result?.isSuccess) {
+        handleRequestSuccess({ message: 'Operation successful.' });
         this.resetFilters();
         this.getData();
       }
@@ -251,7 +273,7 @@ export class InstallmentsComponent {
       ),
     );
   }
-  
+
   // toggleItemMenu(selectedCustomer: CustomerDtoVM) {
   //   let toggled = (selectedCustomer.menuToggled = !selectedCustomer.menuToggled);
   //   this.customers.update((customers) =>
@@ -266,7 +288,7 @@ export class InstallmentsComponent {
   }
 
   getDisplayRange(): { start: number; end: number } {
-      const range = getPageRange(this.totalItems, this.currentPage, this.itemsPerPage);
-      return range;
+    const range = getPageRange(this.totalItems, this.currentPage, this.itemsPerPage);
+    return range;
   }
 }

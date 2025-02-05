@@ -130,12 +130,13 @@
                     <th scope="col">End Date</th>
                     <th scope="col">Status</th>
                     <th scope="col">Created By</th>
+                    <th scope="col">Actions</th>
                 </ng-container>
             </thead>
             <tbody>
                 @if (filtersLoadState == 'Loading') {
                 <tr>
-                    <td class="py-4 text-center text-sm" colspan="11">Loading ...</td>
+                    <td class="py-4 text-center text-sm" colspan="12">Loading ...</td>
                 </tr>
                 }
 
@@ -169,10 +170,29 @@
                                 }
                             </td>
                             <td>{{ installment.createdBy }}</td>
+                            <td class="text-center relative">
+                                <button [cdkMenuTriggerFor]="menu"
+                                    class="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:bg-card hover:text-foreground">
+                                    <svg-icon src="./assets/icons/heroicons/outline/ellipsis-vertical.svg"
+                                        [svgClass]="'h-4 w-4'"> </svg-icon>
+                                </button>
+                                <!-- Dropdown -->
+                                <ng-template #menu>
+                                    <div class="example-menu" cdkMenu>
+                                        @if (installment.status == 'Inactive') {
+                                            <button (click)="openEditModal(installment)" class="example-menu-item" cdkMenuItem>Edit</button>
+                                            <button (click)="openConfirmModal(installment)" class="example-menu-item text-red-500" cdkMenuItem>Delete</button>
+                                        } 
+                                        @else {
+                                            <span class="example-menu-item" cdkMenuItem>No action for active/paid</span>
+                                        }
+                                    </div>
+                                </ng-template>
+                            </td>
                         </ng-container>
                     </tr>
                     <tr [ngClass]="installment.detailsToggled ? '' : 'hidden' ">
-                        <td colspan="11" class="px-6 py-4">
+                        <td colspan="12" class="px-6 py-4">
                             <div class="animate-fade-in space-y-4">
                                 <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-x-2 gap-y-4 text-xs text-muted-foreground">
                                     <div class="bg-card max-w-64 sm:max-w-full p-4 rounded-lg shadow-sm">
@@ -202,7 +222,7 @@
                     </tr>
                     } @empty {
                     <tr>
-                        <td colspan="11" class="px-6 py-4">
+                        <td colspan="12" class="px-6 py-4">
                             <div class="text-center">
                                 <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24"
                                     stroke="currentColor" aria-hidden="true">
@@ -220,7 +240,7 @@
 
                 @if (filtersLoadState == 'Error') {
                 <tr>
-                    <td colspan="11">
+                    <td colspan="12">
                         <app-loading-error (onRetry)="filterData()"></app-loading-error>
                     </td>
                 </tr>
