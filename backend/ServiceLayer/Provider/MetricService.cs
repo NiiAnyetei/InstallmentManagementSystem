@@ -30,7 +30,7 @@ public class MetricService : IMetricService
             var customers = await _context.Customers.ToListAsync();
             var installments = await _context.Installments.ToListAsync();
             var payments = await _context.Payments.ToListAsync();
-            var bills = await _context.Payments.ToListAsync();
+            var bills = await _context.Bills.ToListAsync();
             var metrics = new List<MetricDto>();
 
             var totalCustomers = customers.Count;

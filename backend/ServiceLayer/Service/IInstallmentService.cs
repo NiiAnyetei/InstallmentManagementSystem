@@ -8,7 +8,8 @@ namespace ServiceLayer.Service
         Task<NewInstallmentDto> CreateAsync(NewInstallmentDto installment, string username);
         Task<InstallmentDto> GetAsync(Guid installmentId);
         Task<InstallmentsDto> GetAllAsync(InstallmentsQuery query);
-        Task<InstallmentDto> UpdateAsync(Guid installmentId, UpdatedInstallmentDto installment, string username);
+        Task<NewInstallmentDto> UpdateAsync(Guid installmentId, UpdatedInstallmentDto installment, string username);
+        Task<InstallmentDto> DeleteAsync(Guid installmentId, string username);
         Task CompleteInstallmentsAsync();
     }
 }

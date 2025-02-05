@@ -39,7 +39,7 @@ namespace IMS.Controllers
         /// 
         /// Sample request:
         ///
-        ///     POST api/installment
+        ///     POST api/installments
         ///     {
         ///            "customerId": "a6356aae-e248-42a0-87b3-f68a2a92e9be",
         ///            "item": "iPhone X",
@@ -127,23 +127,23 @@ namespace IMS.Controllers
             return Ok(installments);
         }
 
-        // PUT api/<ArticleController>/:installmentId
+        // PUT api/<InstallmentsController>/:installmentId
         /// <summary>
-        /// Update a installment
+        /// Update an installment
         /// </summary>
         /// <remarks>
-        /// Updates a installment
+        /// Updates an installment
         /// 
         /// Sample request:
         ///
-        ///     PUT api/installment/:installmentId
+        ///     PUT api/installments/:installmentId
         ///     {
-        ///         "firstName": "Joe",
+        ///         "item": "iPhone XR",
         ///     }
         ///     
         /// </remarks>
-        /// <returns>A Installment</returns>
-        /// <response code="200">Returns a installment</response>
+        /// <returns>An Installment</returns>
+        /// <response code="200">Returns an installment</response>
         /// <response code="400">Bad request</response>
         /// <response code="401">Unauthorized</response>
         /// <response code="500">Error</response>
@@ -159,6 +159,33 @@ namespace IMS.Controllers
 
             var username = User.GetUsername();
             var article = await _installmentService.UpdateAsync(installmentId, updatedInstallmentDto, username);
+            return Ok(article);
+        }
+
+        // DELETE api/<InstallmentsController>/:installmentId
+        /// <summary>
+        /// Delete an installment
+        /// </summary>
+        /// <remarks>
+        /// Deletes an installment
+        /// </remarks>
+        /// <returns>An Installment</returns>
+        /// <response code="200">Returns a installment</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="401">Unauthorized</response>
+        /// <response code="500">Error</response>
+        [Authorize]
+        [HttpDelete("{installmentId}")]
+        [Produces("application/json")]
+        [ProducesResponseType<InstallmentDto>(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType<Error>(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> DeleteInstallment(Guid installmentId)
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            var username = User.GetUsername();
+            var article = await _installmentService.DeleteAsync(installmentId, username);
             return Ok(article);
         }
     }

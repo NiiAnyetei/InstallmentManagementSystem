@@ -31,8 +31,11 @@ namespace ServiceLayer.Provider
             {
                 if (dto.Event == Consts.PaystackSuccessEvent)
                 {
-                    var installment = await _context.Installments.AsNoTracking().Where(i => i.Id == data.Metadata.InstallmentId).FirstOrDefaultAsync();
+                    var installment = await _context.Installments.Where(i => i.Id == data.Metadata.InstallmentId).FirstOrDefaultAsync();
                     if (installment == null) throw new Exception("Installment not found");
+
+                    installment.Status = InstallmentStatus.Active;
+                    await _context.SaveChangesAsync();
 
                     var amount = data.Amount / 100;
                     var payment = new Payment(PaymentMode.Momo, amount)

@@ -44,11 +44,16 @@ namespace DataLayer.Models.Data
 
         public void UpdateInstallment(UpdatedInstallmentDto update, string username)
         {
-            //if (!string.IsNullOrWhiteSpace(update.CustomerId)) CustomerId = Guid.Parse(update.CustomerId);
+            if (!string.IsNullOrWhiteSpace(update.CustomerId)) CustomerId = Guid.Parse(update.CustomerId);
+            if (!string.IsNullOrWhiteSpace(update.PaymentChannel)) PaymentChannel = update.PaymentChannel;
             if (!string.IsNullOrWhiteSpace(update.Item)) Item = update.Item;
-            if (update.Amount > 0) TotalAmountDue = (decimal)(Amount - update.Amount);
+            if (!string.IsNullOrWhiteSpace(update.ItemDetails)) ItemDetails = update.ItemDetails;
+            //if (update.Amount > 0) TotalAmountDue = (decimal)(Amount - update.Amount);
             if (update.Amount > 0) Amount = (decimal)update.Amount;
-            if (Amount <= 0) Status = InstallmentStatus.Inactive;
+            if (update.InitialDeposit >= 0) InitialDeposit = (decimal)update.InitialDeposit;
+            if (!string.IsNullOrWhiteSpace(update.CyclePeriod.ToString())) CyclePeriod = (CyclePeriod)update.CyclePeriod;
+            if (update.CycleNumber > 0) CycleNumber = (int)update.CycleNumber;
+            //if (Amount <= 0) Status = InstallmentStatus.Inactive;
 
             UpdatedBy = username;
             UpdatedAt = DateTime.UtcNow;

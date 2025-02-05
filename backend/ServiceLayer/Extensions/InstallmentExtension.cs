@@ -1,4 +1,5 @@
-﻿using DataLayer.Models.Data;
+﻿using DataLayer.Enums;
+using DataLayer.Models.Data;
 using DataLayer.Models.DTOs;
 using System;
 using System.Collections.Generic;
@@ -23,6 +24,20 @@ namespace ServiceLayer.Extensions
                 installment.PaymentChannel
             );
         }
+        
+        public static NewInstallmentDto ToNewInstallmentDto(this UpdatedInstallmentDto updatedInstallmentDto)
+        {
+            return new NewInstallmentDto(
+                updatedInstallmentDto.CustomerId.ToString(),
+                updatedInstallmentDto.Item,
+                updatedInstallmentDto.ItemDetails,
+                (decimal)updatedInstallmentDto.Amount,
+                (decimal)updatedInstallmentDto.InitialDeposit,
+                (CyclePeriod)updatedInstallmentDto.CyclePeriod,
+                (int)updatedInstallmentDto.CycleNumber,
+                updatedInstallmentDto.PaymentChannel
+            );
+        }
 
         public static Installment ToInstallment(this NewInstallmentDto newInstallmentDto)
         {
@@ -34,6 +49,19 @@ namespace ServiceLayer.Extensions
                 newInstallmentDto.CyclePeriod,
                 newInstallmentDto.CycleNumber,
                 newInstallmentDto.PaymentChannel
+            );
+        }
+        
+        public static Installment ToInstallment(this UpdatedInstallmentDto updatedInstallmentDto)
+        {
+            return new Installment(
+                updatedInstallmentDto.Item,
+                updatedInstallmentDto.ItemDetails,
+                (decimal)updatedInstallmentDto.Amount,
+                (decimal)updatedInstallmentDto.InitialDeposit,
+                (CyclePeriod)updatedInstallmentDto.CyclePeriod,
+                (int)updatedInstallmentDto.CycleNumber,
+                updatedInstallmentDto.PaymentChannel
             );
         }
 

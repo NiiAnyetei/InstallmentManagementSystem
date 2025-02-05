@@ -40,7 +40,7 @@ namespace ServiceLayer.Provider
                 newInstallment.EndDate = GetEndDate(newInstallment);
                 newInstallment.CreatedBy = username;
                 newInstallment.UpdatedBy = username;
-                newInstallment.Status = InstallmentStatus.Active;
+                newInstallment.Status = InstallmentStatus.Inactive;
 
                 await _context.Installments.AddAsync(newInstallment);
                 await _context.SaveChangesAsync();
@@ -132,9 +132,45 @@ namespace ServiceLayer.Provider
             }
         }
 
-        public Task<InstallmentDto> UpdateAsync(Guid installmentId, UpdatedInstallmentDto installment, string username)
+        public async Task<NewInstallmentDto> UpdateAsync(Guid installmentId, UpdatedInstallmentDto updatedInstallment, string username)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var installment = updatedInstallment.ToNewInstallmentDto();
+
+                await DeleteAsync(installmentId, username);
+                var dto = await CreateAsync(installment, username);
+
+                return dto;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occured while updating installment");
+                throw;
+            }
+        }
+        
+        public async Task<InstallmentDto> DeleteAsync(Guid installmentId, string username)
+        {
+            try
+            {
+                var installmentFromDb = await _context.Installments.Include(i => i.Customer).FirstOrDefaultAsync(i => i.Id == installmentId);
+
+                if (installmentFromDb == null) throw new Exception("Installment not found");
+                if (installmentFromDb.Status != InstallmentStatus.Inactive) throw new Exception("Cannot modify");
+
+                _context.Remove(installmentFromDb);
+                await _context.SaveChangesAsync();
+
+                var dto = installmentFromDb.ToInstallmentDto();
+
+                return dto;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occured while deleting installment");
+                throw;
+            }
         }
 
         public async Task CompleteInstallmentsAsync()

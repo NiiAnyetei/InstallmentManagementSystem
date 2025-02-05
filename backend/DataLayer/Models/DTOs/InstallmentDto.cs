@@ -48,14 +48,32 @@ public record NewInstallmentDto(
     }
 }
 
-public record UpdatedInstallmentDto(string? Item, string? ItemDetails, decimal? Amount) : IValidatableObject
+public record UpdatedInstallmentDto(
+    string? CustomerId,
+    string? Item,
+    string? ItemDetails,
+    decimal? Amount,
+    decimal? InitialDeposit,
+    CyclePeriod? CyclePeriod,
+    int? CycleNumber,
+    string? PaymentChannel
+    ) : IValidatableObject
 {
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
-        if (string.IsNullOrWhiteSpace(Item) && string.IsNullOrWhiteSpace(ItemDetails) && Amount is null or 0)
+        if (
+            string.IsNullOrWhiteSpace(CustomerId) && 
+            string.IsNullOrWhiteSpace(Item) && 
+            string.IsNullOrWhiteSpace(ItemDetails) && 
+            Amount is null or 0 && 
+            InitialDeposit is null && 
+            string.IsNullOrWhiteSpace(CyclePeriod.ToString()) &&
+            CycleNumber is null or 0 &&
+            string.IsNullOrWhiteSpace(PaymentChannel)
+            )
         {
             yield return new ValidationResult(
-                $"At least one of the fields: {nameof(Item)}, {nameof(ItemDetails)}, {nameof(Amount)} must be filled"
+                $"At least one of the fields: {nameof(CustomerId)}, {nameof(Item)}, {nameof(ItemDetails)}, {nameof(Amount)}, {nameof(InitialDeposit)}, {nameof(CyclePeriod)}, {nameof(CycleNumber)}, {nameof(PaymentChannel)} must be filled"
             );
         }
     }
